@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Mi Inventario — Alquiler de Materiales</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+
+<!-- // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyB-lvfwQj1g0YuW-8gkh403Gxu3MVrxGtc",
+  authDomain: "app-empresa-fa314.firebaseapp.com",
+  databaseURL: "https://app-empresa-fa314-default-rtdb.firebaseio.com",
+  projectId: "app-empresa-fa314",
+  storageBucket: "app-empresa-fa314.firebasestorage.app",
+  messagingSenderId: "1063975841443",
+  appId: "1:1063975841443:web:0bb20f82c4da1b5cbed916",
+  measurementId: "G-W7ZP00KT8C"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);-->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey:            "TU_API_KEY",
+    authDomain:        "TU_PROJECT.firebaseapp.com",
+    databaseURL:       "https://TU_PROJECT-default-rtdb.firebaseio.com",
+    projectId:         "TU_PROJECT",
+    storageBucket:     "TU_PROJECT.appspot.com",
+    messagingSenderId: "TU_SENDER_ID",
+    appId:             "TU_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+
+  // Expone funciones al scope global para que el resto del JS las use
+  window._fbSet = (path, data) => set(ref(db, path), data);
+  window._fbOn  = (path, cb)   => onValue(ref(db, path), snap => cb(snap.val()));
+  window._fbGet = async (path) => {
+    const snap = await get(ref(db, path));
+    return snap.val();
+  };
+  window._fbReady = true;
+  window.dispatchEvent(new Event('fb-ready'));
+</script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --cream:#F5F0E8;--ink:#18130C;--gold:#C07D10;--gold-l:#FAEECF;--gold-m:#E09A20;
+  --sage:#3E6B4A;--sage-l:#E4F0E7;--rust:#A83820;--rust-l:#FAE8E3;
+  --stone:#8A7060;--stone-l:#C8B9A8;--border:#DDD4C4;--card:#FFFDF8;
+  --sh:0 2px 12px rgba(24,19,12,.07);--sh2:0 6px 28px rgba(24,19,12,.13);
+  --sync:#1A6B3A;--sync-l:#E2F4EA;
+}
+html,body{height:100%;background:#E8E0D0;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif}
+.phone{width:100%;max-width:390px;height:100dvh;max-height:780px;background:var(--cream);display:flex;flex-direction:column;overflow:hidden;position:relative;box-shadow:0 24px 70px rgba(24,19,12,.3)}
+@media(min-width:440px){.phone{border-radius:40px;border:2px solid var(--stone-l)}}
+.screen{display:none;flex:1;flex-direction:column;overflow:hidden}
+.screen.active{display:flex}
+.topbar{padding:max(env(safe-area-inset-top),18px) 18px 12px;display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0}
+.topbar-eyebrow{font-size:10px;font-weight:600;color:var(--stone);text-transform:uppercase;letter-spacing:.12em;margin-bottom:2px}
+.topbar-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--ink);line-height:1}
+.topbar-sub{font-size:11px;color:var(--stone);margin-top:3px}
+.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(145deg,var(--gold-m),var(--gold));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;box-shadow:0 3px 10px rgba(192,125,16,.4);flex-shrink:0}
+.scroll{flex:1;overflow-y:auto;padding:0 16px 18px;-webkit-overflow-scrolling:touch}
+.scroll::-webkit-scrollbar{display:none}
+.bottomnav{display:flex;border-top:1px solid var(--border);background:var(--card);flex-shrink:0;padding:2px 0;padding-bottom:max(env(safe-area-inset-bottom),4px)}
+.navbtn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 0;cursor:pointer;background:none;border:none;color:var(--ink);font-family:'Outfit',sans-serif;font-size:10px;font-weight:600;letter-spacing:.03em;transition:color .2s}
+.navbtn i{font-size:20px;color:var(--stone-l);transition:color .2s}
+.navbtn.on{color:var(--gold)}
+.navbtn.on i{color:var(--gold)}
+.sec{font-size:10px;font-weight:600;color:var(--stone);text-transform:uppercase;letter-spacing:.1em;margin:16px 0 8px;display:flex;align-items:center;gap:8px}
+.sec::after{content:'';flex:1;height:1px;background:var(--border)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;margin-bottom:10px;overflow:hidden;box-shadow:var(--sh)}
+.row{display:flex;align-items:center;padding:11px 14px;border-bottom:1px solid var(--border);gap:10px}
+.row:last-child{border-bottom:none}
+.badge{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:600;white-space:nowrap;letter-spacing:.03em}
+.b-ok{background:var(--sage-l);color:var(--sage)}.b-warn{background:var(--gold-l);color:var(--gold)}.b-danger{background:var(--rust-l);color:var(--rust)}.b-info{background:#E6EDF8;color:#2A58A0}.b-gray{background:#EDE8E0;color:var(--stone)}
+.fab{position:absolute;bottom:calc(74px + env(safe-area-inset-bottom,0px));right:16px;width:52px;height:52px;border-radius:50%;background:linear-gradient(145deg,var(--gold-m),var(--gold));border:none;color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;box-shadow:0 4px 18px rgba(192,125,16,.5)}
+.fab:active{transform:scale(.93)}
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;box-shadow:var(--sh);overflow:hidden;position:relative}
+.stat-card-glow{position:absolute;top:-30px;right:-30px;width:90px;height:90px;border-radius:50%;background:radial-gradient(var(--gold-l),transparent 70%);opacity:.7}
+.stat-card-icon{font-size:22px;margin-bottom:7px}
+.stat-card-val{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--ink);line-height:1}
+.stat-card-label{font-size:11px;color:var(--stone);margin-top:2px}
+.res-card{background:var(--card);border:1px solid var(--border);border-radius:18px;margin-bottom:9px;overflow:hidden;cursor:pointer;box-shadow:var(--sh)}
+.res-card:active{box-shadow:var(--sh2)}
+.res-head{padding:13px 14px 10px;display:flex;justify-content:space-between;align-items:flex-start}
+.res-name{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--ink)}
+.res-meta{font-size:11px;color:var(--stone);margin-top:3px;display:flex;gap:8px;align-items:center}
+.res-meta i{font-size:12px}
+.res-pills{padding:0 14px 12px;display:flex;flex-wrap:wrap;gap:5px}
+.detail-hero{padding:max(env(safe-area-inset-top),20px) 18px 26px;flex-shrink:0;position:relative;overflow:hidden;background:var(--ink)}
+.detail-hero-orb{position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(192,125,16,.3),transparent 65%)}
+.detail-hero-orb2{position:absolute;bottom:-30px;left:-30px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(192,125,16,.15),transparent 65%)}
+.btn-back{background:none;border:none;cursor:pointer;font-size:22px;padding:0;margin-bottom:12px;display:block;position:relative}
+.detail-hero-name{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:#fff;position:relative;line-height:1.15}
+.detail-hero-meta{font-size:12px;color:rgba(255,255,255,.55);margin-top:4px;position:relative;font-weight:300}
+.subheader{padding:16px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0;background:var(--cream)}
+.subheader-title{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:700;color:var(--ink);flex:1}
+.fcard{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:14px;box-shadow:var(--sh)}
+.frow{display:flex;align-items:center;padding:13px 14px;border-bottom:1px solid var(--border);gap:8px}
+.frow:last-child{border-bottom:none}
+.flabel{font-size:12px;color:var(--stone);width:80px;flex-shrink:0;font-weight:500}
+.frow input,.frow select{flex:1;border:none;background:transparent;font-size:14px;color:var(--ink);font-family:'Outfit',sans-serif;outline:none;min-width:0}
+.frow select{cursor:pointer;-webkit-appearance:none}
+.save-bar{padding:12px 16px;padding-bottom:max(env(safe-area-inset-bottom),12px);border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;background:var(--card)}
+.btn-p{flex:1;padding:14px;background:linear-gradient(135deg,var(--gold-m),var(--gold));border:none;border-radius:14px;color:#fff;font-size:14px;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer;box-shadow:0 3px 12px rgba(192,125,16,.35)}
+.btn-s{padding:14px 16px;background:var(--cream);border:1px solid var(--border);border-radius:14px;font-size:14px;font-family:'Outfit',sans-serif;cursor:pointer;color:var(--stone);font-weight:500}
+.qty-ctrl{display:flex;align-items:center;gap:8px}
+.qbtn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border);background:var(--cream);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink);font-family:'Outfit',sans-serif;flex-shrink:0;padding:0;line-height:1}
+.qbtn:active{background:var(--gold-l);border-color:var(--gold)}
+.qnum{font-size:15px;font-weight:600;min-width:28px;text-align:center;color:var(--ink)}
+.qnum.active{color:var(--gold)}
+.cal-wrap{padding:0 16px 4px;flex-shrink:0}
+.cal-month{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--ink);margin-bottom:8px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-hdr{font-size:9px;font-weight:600;color:var(--stone-l);text-align:center;padding:2px 0;text-transform:uppercase;letter-spacing:.06em}
+.cal-day{font-size:12px;text-align:center;padding:6px 0;border-radius:10px;cursor:pointer;position:relative;color:var(--stone)}
+.cal-day.has{color:var(--ink);font-weight:600}
+.cal-day.has::after{content:'';width:4px;height:4px;border-radius:50%;background:var(--gold);position:absolute;bottom:1px;left:50%;transform:translateX(-50%)}
+.cal-day.today{background:var(--ink);color:#fff;font-weight:600}
+.cal-day.today::after{background:var(--gold-l)}
+.cal-day.sel{background:var(--gold-l);color:var(--gold);font-weight:700}
+.cal-day.sel::after{background:var(--gold)}
+.avail-row{display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);gap:10px}
+.avail-row:last-child{border-bottom:none}
+.avail-emoji{font-size:16px;width:22px;text-align:center;flex-shrink:0}
+.avail-name{flex:1;font-size:12px;color:var(--ink);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.avail-bar-wrap{width:44px;height:4px;background:var(--border);border-radius:2px;overflow:hidden;flex-shrink:0}
+.avail-bar{height:100%;border-radius:2px;transition:width .4s}
+.avail-num{font-size:12px;font-weight:600;min-width:26px;text-align:right}
+.avail-of{font-size:10px;color:var(--stone-l);min-width:28px}
+.item-picker{display:flex;align-items:center;padding:11px 14px;border-bottom:1px solid var(--border);gap:10px}
+.item-picker:last-child{border-bottom:none}
+.ip-left{flex:1;min-width:0}
+.ip-name{font-size:13px;color:var(--ink);font-weight:500}
+.ip-avail{font-size:11px;color:var(--stone);margin-top:1px}
+.stock-item{display:flex;align-items:center;padding:13px 14px;border-bottom:1px solid var(--border);gap:12px;cursor:pointer}
+.stock-item:last-child{border-bottom:none}
+.stock-item:active{background:var(--gold-l)}
+.stock-icon{width:40px;height:40px;border-radius:12px;background:linear-gradient(145deg,var(--cream),var(--border));display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.stock-name{font-size:13px;font-weight:500;color:var(--ink)}
+.stock-cat{font-size:11px;color:var(--stone);margin-top:1px}
+.stock-qty-col{text-align:right}
+.stock-total{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--ink)}
+.stock-avail-txt{font-size:11px;color:var(--stone)}
+.stock-avail-txt.low{color:var(--rust)}
+.conflict-box{margin-top:10px;background:var(--rust-l);border-radius:14px;padding:11px 13px;font-size:12px;color:var(--rust);display:none;gap:8px;align-items:flex-start}
+.conflict-box.show{display:flex}
+.toast{position:fixed;bottom:calc(90px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--cream);font-size:12px;padding:10px 20px;border-radius:20px;white-space:nowrap;opacity:0;transition:opacity .25s;pointer-events:none;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+.toast.show{opacity:1}
+.sync-bar{display:flex;align-items:center;gap:7px;padding:7px 18px;flex-shrink:0}
+.sync-bar.ok{background:var(--sync-l)}
+.sync-bar.err{background:var(--rust-l)}
+.sync-bar.loading{background:#EEF1F8}
+.sync-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;animation:pulse 2s infinite}
+.sync-dot.ok{background:var(--sync)}
+.sync-dot.err{background:var(--rust);animation:none}
+.sync-dot.loading{background:#2A58A0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.sync-txt{font-size:11px;font-weight:600}
+.sync-txt.ok{color:var(--sync)}
+.sync-txt.err{color:var(--rust)}
+.sync-txt.loading{color:#2A58A0}
+.sync-time{font-size:10px;color:var(--stone);margin-left:auto}
+.loading-overlay{position:fixed;inset:0;background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:999}
+.loading-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-size:14px;color:var(--stone);font-weight:500}
+.empty{font-size:13px;color:var(--stone);padding:8px 0 14px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-txt">Conectando…</div>
+</div>
+
+<div class="phone" id="app">
+
+  <div class="sync-bar loading" id="sync-bar">
+    <div class="sync-dot loading" id="sync-dot"></div>
+    <span class="sync-txt loading" id="sync-txt">Conectando…</span>
+    <span class="sync-time" id="sync-time"></span>
+  </div>
+
+  <!-- INICIO -->
+  <div class="screen active" id="s-home">
+    <div class="topbar">
+      <div><div class="topbar-eyebrow">Bienvenido</div><div class="topbar-title">Mi Inventario</div><div class="topbar-sub" id="home-sub"></div></div>
+      <div class="avatar">SA</div>
+    </div>
+    <div class="scroll">
+      <div class="stats-row" id="home-stats"></div>
+      <div class="sec">Próximas reservas</div>
+      <div id="home-next-res"></div>
+    </div>
+    <button class="fab" onclick="openFormRes(false)"><i class="ti ti-plus"></i></button>
+  </div>
+
+  <!-- STOCK -->
+  <div class="screen" id="s-stock">
+    <div class="topbar">
+      <div><div class="topbar-eyebrow">Gestión</div><div class="topbar-title">Stock</div><div class="topbar-sub">Todos los materiales</div></div>
+      <button onclick="openFormStock(false)" style="background:linear-gradient(135deg,var(--gold-m),var(--gold));border:none;border-radius:12px;color:#fff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;padding:9px 14px;cursor:pointer;display:flex;align-items:center;gap:5px"><i class="ti ti-plus" style="font-size:16px"></i>Agregar</button>
+    </div>
+    <div class="scroll" style="padding:0 16px"><div id="stock-list"></div></div>
+  </div>
+
+  <!-- RESERVAS -->
+  <div class="screen" id="s-res">
+    <div class="topbar"><div><div class="topbar-eyebrow">Calendario</div><div class="topbar-title">Reservas</div></div></div>
+    <div class="cal-wrap">
+      <div class="cal-month" id="cal-month-label"></div>
+      <div class="cal-grid" id="cal"></div>
+    </div>
+    <div class="scroll" style="padding:0 16px">
+      <div class="sec" id="res-day-title">Todos los eventos</div>
+      <div id="res-list"></div>
+      <div class="sec" id="avail-day-title">Disponible hoy</div>
+      <div class="card" id="res-avail-list"></div>
+    </div>
+    <button class="fab" onclick="openFormRes(false)"><i class="ti ti-plus"></i></button>
+  </div>
+
+  <!-- DETALLE -->
+  <div class="screen" id="s-res-detail">
+    <div class="detail-hero">
+      <div class="detail-hero-orb"></div><div class="detail-hero-orb2"></div>
+      <button class="btn-back" style="color:rgba(255,255,255,.5)" onclick="goBack()"><i class="ti ti-arrow-left"></i></button>
+      <div class="detail-hero-name" id="rd-name"></div>
+      <div class="detail-hero-meta" id="rd-meta"></div>
+    </div>
+    <div class="scroll" style="padding:14px 16px">
+      <div class="sec">Materiales alquilados</div>
+      <div class="card" id="rd-items"></div>
+      <div class="sec">Stock disponible ese día</div>
+      <div class="card" id="rd-avail"></div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn-s" style="flex:1" onclick="editRes()"><i class="ti ti-edit" style="font-size:14px;vertical-align:-2px"></i> Editar</button>
+        <button class="btn-s" style="flex:1;color:var(--rust);border-color:var(--rust-l)" onclick="deleteRes()"><i class="ti ti-trash" style="font-size:14px;vertical-align:-2px"></i> Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORM STOCK -->
+  <div class="screen" id="s-stock-form">
+    <div class="subheader">
+      <button class="btn-back" style="color:var(--stone)" onclick="goBack()"><i class="ti ti-arrow-left"></i></button>
+      <div class="subheader-title" id="sf-title">Nuevo material</div>
+    </div>
+    <div class="scroll" style="padding:14px 16px">
+      <div class="fcard">
+        <div class="frow"><span class="flabel">Nombre</span><input id="sf-nombre" type="text" placeholder="Ej: Copa de vino"/></div>
+        <div class="frow"><span class="flabel">Categoría</span><select id="sf-cat"><option value="vajilla">Vajilla</option><option value="cristaleria">Cristalería</option><option value="cubiertos">Cubiertos</option><option value="manteleria">Mantelería</option><option value="mobiliario">Mobiliario</option><option value="otro">Otro</option></select><i class="ti ti-chevron-down" style="font-size:13px;color:var(--stone-l)"></i></div>
+        <div class="frow"><span class="flabel">Emoji</span><input id="sf-emoji" type="text" placeholder="🍽️" maxlength="2" style="width:48px;flex:none;font-size:22px;text-align:center"/><span style="font-size:11px;color:var(--stone-l);margin-left:8px">Icono del material</span></div>
+        <div class="frow"><span class="flabel">Cantidad</span><div class="qty-ctrl"><button class="qbtn" onclick="chgQF(-1,'sf-qty')">−</button><span class="qnum" id="sf-qty">100</span><button class="qbtn" onclick="chgQF(+1,'sf-qty')">+</button></div><span style="font-size:11px;color:var(--stone-l);margin-left:8px">unidades totales</span></div>
+      </div>
+    </div>
+    <div class="save-bar"><button class="btn-s" onclick="goBack()">Cancelar</button><button class="btn-p" onclick="saveStock()">Guardar material</button></div>
+  </div>
+
+  <!-- FORM RESERVA -->
+  <div class="screen" id="s-res-form">
+    <div class="subheader">
+      <button class="btn-back" style="color:var(--stone)" onclick="goBack()"><i class="ti ti-arrow-left"></i></button>
+      <div class="subheader-title" id="rf-title">Nueva reserva</div>
+    </div>
+    <div class="scroll" style="padding:14px 16px">
+      <div class="fcard">
+        <div class="frow"><span class="flabel">Cliente</span><input id="rf-cliente" type="text" placeholder="Nombre del cliente"/></div>
+        <div class="frow"><span class="flabel">Fecha</span><input id="rf-fecha" type="date"/></div>
+        <div class="frow"><span class="flabel">Hora</span><input id="rf-hora" type="time" value="18:00"/></div>
+        <div class="frow"><span class="flabel">Notas</span><input id="rf-notas" type="text" placeholder="Opcional…"/></div>
+      </div>
+      <div class="sec">Materiales a alquilar</div>
+      <div class="card" id="rf-items-list"></div>
+      <div class="conflict-box" id="rf-conflict"><i class="ti ti-alert-triangle" style="font-size:16px;flex-shrink:0;margin-top:1px"></i><span id="rf-conflict-text"></span></div>
+    </div>
+    <div class="save-bar"><button class="btn-s" onclick="goBack()">Cancelar</button><button class="btn-p" onclick="saveRes()">Guardar reserva</button></div>
+  </div>
+
+  <nav class="bottomnav" id="bottomnav">
+    <button class="navbtn on" id="nav-home" onclick="goTo('home')"><i class="ti ti-home"></i>Inicio</button>
+    <button class="navbtn" id="nav-stock" onclick="goTo('stock')"><i class="ti ti-package"></i>Stock</button>
+    <button class="navbtn" id="nav-res" onclick="goTo('res')"><i class="ti ti-calendar"></i>Reservas</button>
+  </nav>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+const MONTHS=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const CATS={vajilla:'Vajilla',cristaleria:'Cristalería',cubiertos:'Cubiertos',manteleria:'Mantelería',mobiliario:'Mobiliario',otro:'Otros'};
+const DEFAULT_STOCK=[
+  {id:1,name:'Plato playo',cat:'vajilla',emoji:'🍽️',total:300},
+  {id:2,name:'Plato hondo',cat:'vajilla',emoji:'🥣',total:200},
+  {id:3,name:'Copa de vino',cat:'cristaleria',emoji:'🍷',total:250},
+  {id:4,name:'Copa champagne',cat:'cristaleria',emoji:'🥂',total:150},
+  {id:5,name:'Vaso de agua',cat:'cristaleria',emoji:'🥛',total:200},
+  {id:6,name:'Cuchillo',cat:'cubiertos',emoji:'🔪',total:300},
+  {id:7,name:'Tenedor',cat:'cubiertos',emoji:'🍴',total:300},
+  {id:8,name:'Cuchara',cat:'cubiertos',emoji:'🥄',total:300},
+  {id:9,name:'Mantel',cat:'manteleria',emoji:'🪡',total:80},
+  {id:10,name:'Servilleta',cat:'manteleria',emoji:'🧻',total:400},
+  {id:11,name:'Silla',cat:'mobiliario',emoji:'🪑',total:200},
+  {id:12,name:'Mesa redonda',cat:'mobiliario',emoji:'🪵',total:30},
+];
+
+let stock=[], reservas=[], nxtId=20;
+let sfEditId=null, editingRes=null, prevScreen='home', selDate=null, rfItems={};
+
+// ── FIREBASE SYNC ──────────────────────────────────────────
+function setSyncStatus(state, msg, time){
+  const bar=document.getElementById('sync-bar');
+  const dot=document.getElementById('sync-dot');
+  const txt=document.getElementById('sync-txt');
+  const tim=document.getElementById('sync-time');
+  bar.className='sync-bar '+state;
+  dot.className='sync-dot '+state;
+  txt.className='sync-txt '+state;
+  txt.textContent=msg;
+  tim.textContent=time||'';
+}
+
+async function initFirebase(){
+  try {
+    // Cargar datos iniciales
+    const [stockData, resData, idData] = await Promise.all([
+      window._fbGet('stock'),
+      window._fbGet('reservas'),
+      window._fbGet('nextId'),
+    ]);
+    stock   = stockData   ? Object.values(stockData)   : DEFAULT_STOCK;
+    reservas= resData     ? Object.values(resData)     : [];
+    nxtId   = idData      ? idData                     : 20;
+
+    // Si no hay datos, subir los defaults
+    if(!stockData){
+      const map={};DEFAULT_STOCK.forEach(s=>{map[s.id]=s});
+      await window._fbSet('stock',map);
+    }
+
+    document.getElementById('loading-overlay').style.display='none';
+    setSyncStatus('ok','En línea · sincronizado',fmtTime(new Date()));
+    renderHome();
+
+    // Escuchar cambios en tiempo real
+    window._fbOn('stock', val => {
+      if(!val)return;
+      const newStock=Object.values(val);
+      if(JSON.stringify(newStock)!==JSON.stringify(stock)){
+        stock=newStock;
+        refreshCurrentScreen();
+        setSyncStatus('ok','Actualizado',fmtTime(new Date()));
+      }
+    });
+    window._fbOn('reservas', val => {
+      const newRes=val?Object.values(val):[];
+      if(JSON.stringify(newRes)!==JSON.stringify(reservas)){
+        reservas=newRes;
+        refreshCurrentScreen();
+        setSyncStatus('ok','Actualizado',fmtTime(new Date()));
+        if(newRes.length>reservas.length)toast('↻ Nueva reserva cargada');
+      }
+    });
+
+  } catch(e){
+    console.error(e);
+    setSyncStatus('err','Sin conexión a Firebase','');
+    document.getElementById('loading-overlay').style.display='none';
+    // Fallback a localStorage
+    loadLocalFallback();
+    renderHome();
+  }
+}
+
+function loadLocalFallback(){
+  try{
+    const s=localStorage.getItem('alq_stock');
+    const r=localStorage.getItem('alq_res');
+    stock=s?JSON.parse(s):DEFAULT_STOCK;
+    reservas=r?JSON.parse(r):[];
+    nxtId=parseInt(localStorage.getItem('alq_id')||'20');
+  }catch(e){stock=[...DEFAULT_STOCK];reservas=[];nxtId=20}
+}
+
+async function saveData(){
+  try{
+    const sMap={};stock.forEach(s=>{sMap[s.id]=s});
+    const rMap={};reservas.forEach(r=>{rMap[r.id]=r});
+    await Promise.all([
+      window._fbSet('stock',sMap),
+      window._fbSet('reservas',rMap),
+      window._fbSet('nextId',nxtId),
+    ]);
+    setSyncStatus('ok','Guardado',fmtTime(new Date()));
+  }catch(e){
+    setSyncStatus('err','Error al guardar','');
+    // Fallback local
+    localStorage.setItem('alq_stock',JSON.stringify(stock));
+    localStorage.setItem('alq_res',JSON.stringify(reservas));
+    localStorage.setItem('alq_id',String(nxtId));
+  }
+}
+
+function fmtTime(d){return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')}
+
+function refreshCurrentScreen(){
+  if(prevScreen==='home')renderHome();
+  else if(prevScreen==='stock')renderStock();
+  else if(prevScreen==='res')renderRes();
+}
+
+// Arrancar cuando Firebase esté listo
+if(window._fbReady){initFirebase()}
+else{window.addEventListener('fb-ready',initFirebase)}
+
+// ── UTILS ──────────────────────────────────────────────────
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+function byId(id){return stock.find(s=>s.id===id)}
+function todayStr(){return new Date().toISOString().split('T')[0]}
+function fmtDate(d){if(!d)return'';const[,m,day]=d.split('-');return`${parseInt(day)} ${MONTHS[parseInt(m)-1]}`}
+function rentedOn(date){const r={};reservas.filter(x=>x.date===date).forEach(x=>x.items.forEach(it=>{r[it.sid]=(r[it.sid]||0)+it.qty}));return r}
+function availOn(date){const r=rentedOn(date),a={};stock.forEach(s=>{a[s.id]=s.total-(r[s.id]||0)});return a}
+function aColor(pct){return pct>50?'#3E6B4A':pct>20?'#C07D10':'#A83820'}
+
+// ── NAV ──────────────────────────────────────────────────
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('on'));
+  const n=document.getElementById('nav-'+id);if(n)n.classList.add('on');
+  document.getElementById('bottomnav').style.display='flex';
+  prevScreen=id;
+  if(id==='home')renderHome();
+  else if(id==='stock')renderStock();
+  else if(id==='res')renderRes();
+}
+function goBack(){document.getElementById('bottomnav').style.display='flex';goTo(prevScreen)}
+
+// ── HOME ──────────────────────────────────────────────────
+function renderHome(){
+  const today=todayStr(),tr=reservas.filter(r=>r.date===today);
+  document.getElementById('home-sub').textContent=`${reservas.length} reservas activas`;
+  document.getElementById('home-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-card-glow"></div><div class="stat-card-icon">📅</div><div class="stat-card-val">${tr.length}</div><div class="stat-card-label">eventos hoy</div></div>
+    <div class="stat-card"><div class="stat-card-glow"></div><div class="stat-card-icon">📋</div><div class="stat-card-val">${reservas.length}</div><div class="stat-card-label">reservas totales</div></div>`;
+  const ups=reservas.filter(r=>r.date>=today).sort((a,b)=>a.date.localeCompare(b.date)||a.hora.localeCompare(b.hora)).slice(0,5);
+  const el=document.getElementById('home-next-res');
+  if(!ups.length){el.innerHTML='<p class="empty">Sin reservas próximas</p>';return}
+  el.innerHTML=ups.map(r=>{
+    const tot=r.items.reduce((s,i)=>s+i.qty,0);
+    const pills=r.items.slice(0,2).map(it=>{const s=byId(it.sid);return s?`<span class="badge b-gray">${s.emoji} ${it.qty}</span>`:''}).join('');
+    const more=r.items.length>2?`<span class="badge b-gray">+${r.items.length-2}</span>`:'';
+    return`<div class="res-card" onclick="openResDetail(${r.id})">
+      <div class="res-head"><div><div class="res-name">${r.client}</div><div class="res-meta"><i class="ti ti-calendar"></i>${fmtDate(r.date)}<i class="ti ti-clock"></i>${r.hora}</div></div><span class="badge b-info">${tot} uds</span></div>
+      <div class="res-pills">${pills}${more}</div></div>`}).join('');
+}
+
+// ── STOCK ──────────────────────────────────────────────────
+function renderStock(){
+  const av=availOn(todayStr());let html='';
+  ['vajilla','cristaleria','cubiertos','manteleria','mobiliario','otro'].forEach(cat=>{
+    const items=stock.filter(s=>s.cat===cat);if(!items.length)return;
+    html+=`<div class="sec">${CATS[cat]}</div><div class="card">`;
+    html+=items.map(s=>{const a=av[s.id]||0;return`<div class="stock-item" onclick="openFormStock(${s.id})"><div class="stock-icon">${s.emoji}</div><div style="flex:1;min-width:0"><div class="stock-name">${s.name}</div><div class="stock-cat">${CATS[s.cat]}</div></div><div class="stock-qty-col"><div class="stock-total">${s.total}</div><div class="stock-avail-txt${a<s.total*.2?' low':''}">${a} disp.</div></div></div>`}).join('');
+    html+=`</div>`;
+  });
+  if(!stock.length)html='<p class="empty" style="margin-top:40px">Agregá tu primer material con el botón +</p>';
+  document.getElementById('stock-list').innerHTML=html;
+}
+
+// ── RESERVAS ──────────────────────────────────────────────
+function renderRes(){buildCal();renderResList(selDate);renderAvail(selDate||todayStr())}
+function buildCal(){
+  const now=new Date(),y=now.getFullYear(),m=now.getMonth();
+  const fd=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate(),tod=now.getDate();
+  const withRes=new Set(reservas.map(r=>{const d=new Date(r.date);if(d.getFullYear()===y&&d.getMonth()===m)return d.getDate();return null}).filter(Boolean));
+  document.getElementById('cal-month-label').textContent=`${MONTHS[m]} ${y}`;
+  const hdrs=['D','L','M','X','J','V','S'].map(d=>`<div class="cal-hdr">${d}</div>`).join('');
+  let cells='';
+  for(let i=0;i<fd;i++)cells+=`<div class="cal-day"></div>`;
+  for(let d=1;d<=days;d++){
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isSel=selDate===ds,isT=d===tod,hasR=withRes.has(d);
+    let cls='cal-day';
+    if(isSel)cls+=' sel';else if(isT)cls+=' today';else if(hasR)cls+=' has';
+    cells+=`<div class="${cls}" onclick="selDay('${ds}')">${d}</div>`;
+  }
+  document.getElementById('cal').innerHTML=hdrs+cells;
+}
+function selDay(date){selDate=selDate===date?null:date;buildCal();renderResList(selDate);renderAvail(selDate||todayStr())}
+function renderAvail(date){
+  const av=availOn(date);
+  document.getElementById('avail-day-title').textContent=date===todayStr()?'Disponible hoy':`Disponible el ${fmtDate(date)}`;
+  document.getElementById('res-avail-list').innerHTML=stock.length
+    ?stock.map(s=>{const a=av[s.id]||0,pct=s.total>0?Math.round(a/s.total*100):0,bw=Math.max(0,Math.min(100,pct)),col=aColor(pct);return`<div class="avail-row"><span class="avail-emoji">${s.emoji}</span><span class="avail-name">${s.name}</span><div class="avail-bar-wrap"><div class="avail-bar" style="width:${bw}%;background:${col}"></div></div><span class="avail-num" style="color:${col}">${a}</span><span class="avail-of">/ ${s.total}</span></div>`}).join('')
+    :'<p style="padding:12px;font-size:13px;color:var(--stone)">Sin materiales cargados</p>';
+}
+function renderResList(fd){
+  const list=fd?reservas.filter(r=>r.date===fd).sort((a,b)=>a.hora.localeCompare(b.hora)):reservas.sort((a,b)=>a.date.localeCompare(b.date)||a.hora.localeCompare(b.hora));
+  document.getElementById('res-day-title').textContent=fd?`Reservas — ${fmtDate(fd)} (${list.length})`:`Todas las reservas (${list.length})`;
+  const el=document.getElementById('res-list');
+  if(!list.length){el.innerHTML='<p style="font-size:13px;color:var(--stone);padding:4px 0 12px">Sin reservas para este día</p>';return}
+  el.innerHTML=list.map(r=>{
+    const tot=r.items.reduce((s,i)=>s+i.qty,0);
+    const pills=r.items.slice(0,3).map(it=>{const s=byId(it.sid);return s?`<span class="badge b-gray">${s.emoji} ${it.qty} ${s.name}</span>`:''}).join('');
+    const more=r.items.length>3?`<span class="badge b-gray">+${r.items.length-3} más</span>`:'';
+    return`<div class="res-card" onclick="openResDetail(${r.id})">
+      <div class="res-head"><div><div class="res-name">${r.client}</div><div class="res-meta"><i class="ti ti-calendar"></i>${fmtDate(r.date)}<i class="ti ti-clock"></i>${r.hora}${r.notas?`<span>${r.notas}</span>`:''}</div></div><span class="badge b-info">${tot} uds</span></div>
+      <div class="res-pills">${pills}${more}</div></div>`}).join('');
+}
+
+// ── DETALLE ──────────────────────────────────────────────
+function openResDetail(id){
+  const r=reservas.find(x=>x.id===id);if(!r)return;
+  editingRes=id;
+  document.getElementById('rd-name').textContent=r.client;
+  document.getElementById('rd-meta').textContent=`${fmtDate(r.date)} · ${r.hora}${r.notas?' · '+r.notas:''}`;
+  document.getElementById('rd-items').innerHTML=r.items.map(it=>{const s=byId(it.sid);if(!s)return'';return`<div class="row"><span style="font-size:20px">${s.emoji}</span><span style="flex:1;font-size:13px;font-weight:500;color:var(--ink)">${s.name}</span><span style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--ink)">${it.qty}</span><span style="font-size:11px;color:var(--stone);margin-left:3px">uds</span></div>`}).join('');
+  const av=availOn(r.date);
+  document.getElementById('rd-avail').innerHTML=stock.map(s=>{const a=av[s.id]||0,pct=s.total>0?Math.round(a/s.total*100):0,bw=Math.max(0,Math.min(100,pct)),col=aColor(pct);return`<div class="avail-row"><span class="avail-emoji">${s.emoji}</span><span class="avail-name">${s.name}</span><div class="avail-bar-wrap"><div class="avail-bar" style="width:${bw}%;background:${col}"></div></div><span class="avail-num" style="color:${col}">${a}</span><span class="avail-of">/ ${s.total}</span></div>`}).join('');
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-res-detail').classList.add('active');
+  document.getElementById('bottomnav').style.display='none';
+}
+async function deleteRes(){
+  if(!confirm('¿Eliminar esta reserva?'))return;
+  reservas=reservas.filter(r=>r.id!==editingRes);
+  await saveData();toast('Reserva eliminada');goBack();
+}
+function editRes(){openFormRes(true)}
+
+// ── FORM STOCK ──────────────────────────────────────────
+function openFormStock(id){
+  sfEditId=id||null;
+  if(id){const s=byId(id);document.getElementById('sf-title').textContent='Editar material';document.getElementById('sf-nombre').value=s.name;document.getElementById('sf-cat').value=s.cat;document.getElementById('sf-emoji').value=s.emoji;document.getElementById('sf-qty').textContent=s.total;}
+  else{document.getElementById('sf-title').textContent='Nuevo material';document.getElementById('sf-nombre').value='';document.getElementById('sf-cat').value='vajilla';document.getElementById('sf-emoji').value='';document.getElementById('sf-qty').textContent='100';}
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-stock-form').classList.add('active');
+  document.getElementById('bottomnav').style.display='none';
+}
+function chgQF(d,el){const e=document.getElementById(el);e.textContent=Math.max(1,parseInt(e.textContent||'1')+d)}
+async function saveStock(){
+  const name=document.getElementById('sf-nombre').value.trim();
+  if(!name){toast('Escribí el nombre del material');return}
+  const cat=document.getElementById('sf-cat').value,emoji=document.getElementById('sf-emoji').value.trim()||'📦',total=parseInt(document.getElementById('sf-qty').textContent);
+  if(sfEditId){const s=byId(sfEditId);s.name=name;s.cat=cat;s.emoji=emoji;s.total=total;toast('Material actualizado')}
+  else{stock.push({id:nxtId++,name,cat,emoji,total});toast('Material agregado')}
+  await saveData();goBack();
+}
+
+// ── FORM RESERVA ──────────────────────────────────────────
+function openFormRes(edit){
+  rfItems={};
+  if(edit&&editingRes){const r=reservas.find(x=>x.id===editingRes);document.getElementById('rf-title').textContent='Editar reserva';document.getElementById('rf-cliente').value=r.client;document.getElementById('rf-fecha').value=r.date;document.getElementById('rf-hora').value=r.hora;document.getElementById('rf-notas').value=r.notas;r.items.forEach(it=>{rfItems[it.sid]=it.qty});}
+  else{document.getElementById('rf-title').textContent='Nueva reserva';document.getElementById('rf-cliente').value='';document.getElementById('rf-fecha').value=todayStr();document.getElementById('rf-hora').value='18:00';document.getElementById('rf-notas').value='';editingRes=null;}
+  renderRfItems();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-res-form').classList.add('active');
+  document.getElementById('bottomnav').style.display='none';
+}
+function renderRfItems(){
+  const date=document.getElementById('rf-fecha').value||todayStr();
+  let ba=availOn(date);
+  if(editingRes){const r=reservas.find(x=>x.id===editingRes);if(r)r.items.forEach(it=>{ba[it.sid]=(ba[it.sid]||0)+it.qty})}
+  document.getElementById('rf-items-list').innerHTML=stock.length
+    ?stock.map(s=>{const a=ba[s.id]||0,cur=rfItems[s.id]||0;return`<div class="item-picker"><span style="font-size:22px;flex-shrink:0">${s.emoji}</span><div class="ip-left"><div class="ip-name">${s.name}</div><div class="ip-avail">${a} disponibles de ${s.total}</div></div><div class="qty-ctrl"><button class="qbtn" onclick="chgRf(${s.id},-1,${a})">−</button><span class="qnum${cur>0?' active':''}" id="rfq-${s.id}">${cur}</span><button class="qbtn" onclick="chgRf(${s.id},+1,${a})">+</button></div></div>`}).join('')
+    :'<p class="empty" style="padding:16px">Primero cargá materiales en Stock</p>';
+  checkConflicts();
+}
+function chgRf(sid,d,maxA){
+  const el=document.getElementById('rfq-'+sid);
+  let v=Math.max(0,Math.min(maxA,(rfItems[sid]||0)+d));
+  rfItems[sid]=v;el.textContent=v;el.className='qnum'+(v>0?' active':'');
+  checkConflicts();
+}
+function checkConflicts(){
+  const date=document.getElementById('rf-fecha').value||todayStr();
+  let ba=availOn(date);
+  if(editingRes){const r=reservas.find(x=>x.id===editingRes);if(r)r.items.forEach(it=>{ba[it.sid]=(ba[it.sid]||0)+it.qty})}
+  const cf=[];
+  Object.entries(rfItems).forEach(([sid,qty])=>{if(qty<=0)return;const a=ba[parseInt(sid)]||0;if(qty>a){const s=byId(parseInt(sid));if(s)cf.push(`${s.emoji} ${s.name}: pedís ${qty}, hay ${a}`)}});
+  const el=document.getElementById('rf-conflict');
+  if(cf.length){el.classList.add('show');document.getElementById('rf-conflict-text').textContent=cf.join(' · ')}else el.classList.remove('show');
+}
+async function saveRes(){
+  const client=document.getElementById('rf-cliente').value.trim(),date=document.getElementById('rf-fecha').value;
+  if(!client){toast('Escribí el nombre del cliente');return}
+  if(!date){toast('Elegí una fecha');return}
+  const items=Object.entries(rfItems).filter(([,q])=>q>0).map(([sid,qty])=>({sid:parseInt(sid),qty}));
+  if(!items.length){toast('Agregá al menos un material');return}
+  let ba=availOn(date);
+  if(editingRes){const r=reservas.find(x=>x.id===editingRes);if(r)r.items.forEach(it=>{ba[it.sid]=(ba[it.sid]||0)+it.qty})}
+  for(const{sid,qty}of items){if(qty>(ba[sid]||0)){const s=byId(sid);toast(`Stock insuficiente: ${s?s.name:'material'}`);return}}
+  const hora=document.getElementById('rf-hora').value,notas=document.getElementById('rf-notas').value.trim();
+  if(editingRes){const r=reservas.find(x=>x.id===editingRes);r.client=client;r.date=date;r.hora=hora;r.notas=notas;r.items=items;toast('Reserva actualizada')}
+  else{reservas.push({id:nxtId++,client,date,hora,notas,items});toast('Reserva creada ✓')}
+  editingRes=null;await saveData();goBack();
+}
+
+document.getElementById('rf-fecha').addEventListener('change',renderRfItems);
+</script>
+</body>
+</html>
