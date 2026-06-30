@@ -16,7 +16,7 @@
 <meta name="mobile-web-app-capable" content="yes"/>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 
 <!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -53,24 +53,24 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --cream:#F5F0E8;--ink:#18130C;--gold:#C07D10;--gold-l:#FAEECF;--gold-m:#E09A20;
-  --sage:#3E6B4A;--sage-l:#E4F0E7;--rust:#A83820;--rust-l:#FAE8E3;
-  --stone:#8A7060;--stone-l:#C8B9A8;--border:#DDD4C4;--card:#FFFDF8;
-  --sh:0 2px 12px rgba(24,19,12,.07);--sh2:0 6px 28px rgba(24,19,12,.13);
-  --sync:#1A6B3A;--sync-l:#E2F4EA;
-  --violet:#5C3B8C;--violet-l:#EDE8F8;
+  --cream:#FAFAF9;--ink:#1A1A1A;--gold:#B45309;--gold-l:#FBEFE0;--gold-m:#C2750C;
+  --sage:#2E6B40;--sage-l:#EAF4EC;--rust:#B23A2A;--rust-l:#FBEAE7;
+  --stone:#6B6B6B;--stone-l:#C7C7C7;--border:#E5E5E5;--card:#FFFFFF;
+  --sh:0 1px 2px rgba(0,0,0,.04);--sh2:0 2px 10px rgba(0,0,0,.07);
+  --sync:#2E6B40;--sync-l:#EAF4EC;
+  --violet:#5B4B8A;--violet-l:#EFEBF7;
 }
-html,body{height:100%;background:#E8E0D0;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif}
-.phone{width:100%;max-width:390px;height:100dvh;max-height:780px;background:var(--cream);display:flex;flex-direction:column;overflow:hidden;position:relative;box-shadow:0 24px 70px rgba(24,19,12,.3)}
-@media(min-width:440px){.phone{border-radius:40px;border:2px solid var(--stone-l)}}
+html,body{height:100%;background:#EDEDED;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif}
+.phone{width:100%;max-width:390px;height:100dvh;max-height:780px;background:var(--cream);display:flex;flex-direction:column;overflow:hidden;position:relative;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+@media(min-width:440px){.phone{border-radius:24px;border:1px solid var(--border)}}
 .screen{display:none;flex:1;flex-direction:column;overflow:hidden}
 .screen.active{display:flex}
-.topbar{padding:max(env(safe-area-inset-top),18px) 18px 12px;display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0}
+.topbar{padding:max(env(safe-area-inset-top),20px) 20px 14px;display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0}
 .topbar-eyebrow{font-size:10px;font-weight:600;color:var(--stone);text-transform:uppercase;letter-spacing:.12em;margin-bottom:2px}
-.topbar-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--ink);line-height:1}
+.topbar-title{font-family:'Outfit',sans-serif;font-size:26px;font-weight:700;color:var(--ink);line-height:1}
 .topbar-sub{font-size:11px;color:var(--stone);margin-top:3px}
-.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(145deg,var(--gold-m),var(--gold));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;box-shadow:0 3px 10px rgba(192,125,16,.4);flex-shrink:0}
-.scroll{flex:1;overflow-y:auto;padding:0 16px 18px;-webkit-overflow-scrolling:touch}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;flex-shrink:0}
+.scroll{flex:1;overflow-y:auto;padding:0 20px 22px;-webkit-overflow-scrolling:touch}
 .scroll::-webkit-scrollbar{display:none}
 .bottomnav{display:flex;border-top:1px solid var(--border);background:var(--card);flex-shrink:0;padding:2px 0;padding-bottom:max(env(safe-area-inset-bottom),4px)}
 .navbtn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 0;cursor:pointer;background:none;border:none;color:var(--ink);font-family:'Outfit',sans-serif;font-size:9px;font-weight:600;letter-spacing:.02em}
@@ -84,33 +84,32 @@ html,body{height:100%;background:#E8E0D0;display:flex;align-items:center;justify
 .row:last-child{border-bottom:none}
 .badge{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:600;white-space:nowrap;letter-spacing:.03em}
 .b-ok{background:var(--sage-l);color:var(--sage)}.b-warn{background:var(--gold-l);color:var(--gold)}.b-danger{background:var(--rust-l);color:var(--rust)}.b-info{background:#E6EDF8;color:#2A58A0}.b-gray{background:#EDE8E0;color:var(--stone)}.b-violet{background:var(--violet-l);color:var(--violet)}
-.fab{position:absolute;bottom:calc(72px + env(safe-area-inset-bottom,0px));right:16px;width:50px;height:50px;border-radius:50%;background:linear-gradient(145deg,var(--gold-m),var(--gold));border:none;color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;box-shadow:0 4px 18px rgba(192,125,16,.5)}
+.fab{position:absolute;bottom:calc(72px + env(safe-area-inset-bottom,0px));right:16px;width:50px;height:50px;border-radius:50%;background:var(--ink);border:none;color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;box-shadow:var(--sh2)}
 .fab:active{transform:scale(.93)}
 .stats-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;box-shadow:var(--sh);overflow:hidden;position:relative;cursor:pointer}
-.stat-card-glow{position:absolute;top:-30px;right:-30px;width:90px;height:90px;border-radius:50%;background:radial-gradient(var(--gold-l),transparent 70%);opacity:.7}
+.stat-card-glow{display:none}
 .stat-card-icon{font-size:22px;margin-bottom:7px}
-.stat-card-val{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--ink);line-height:1}
+.stat-card-val{font-family:'Outfit',sans-serif;font-size:26px;font-weight:700;color:var(--ink);line-height:1}
 .stat-card-label{font-size:11px;color:var(--stone);margin-top:2px}
 .res-card{background:var(--card);border:1px solid var(--border);border-radius:18px;margin-bottom:9px;overflow:hidden;cursor:pointer;box-shadow:var(--sh)}
 .res-card:active{box-shadow:var(--sh2)}
 .res-head{padding:12px 14px 9px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-.res-name{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--ink)}
+.res-name{font-family:'Outfit',sans-serif;font-size:16px;font-weight:600;color:var(--ink)}
 .res-meta{font-size:11px;color:var(--stone);margin-top:3px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .res-meta i{font-size:12px}
 .res-pills{padding:0 14px 11px;display:flex;flex-wrap:wrap;gap:5px}
 .res-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
 .res-price{font-size:12px;font-weight:600;color:var(--stone)}
 .detail-hero{padding:max(env(safe-area-inset-top),18px) 18px 20px;flex-shrink:0;position:relative;overflow:hidden;background:var(--ink)}
-.detail-hero-orb{position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(192,125,16,.3),transparent 65%)}
-.detail-hero-orb2{position:absolute;bottom:-30px;left:-30px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(192,125,16,.15),transparent 65%)}
+.detail-hero-orb,.detail-hero-orb2{display:none}
 .btn-back{background:none;border:none;cursor:pointer;font-size:22px;padding:0;margin-bottom:10px;display:block;position:relative}
-.detail-hero-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#fff;position:relative;line-height:1.15}
+.detail-hero-name{font-family:'Outfit',sans-serif;font-size:22px;font-weight:700;color:#fff;position:relative;line-height:1.15}
 .detail-hero-meta{font-size:12px;color:rgba(255,255,255,.55);margin-top:3px;position:relative;font-weight:300}
-.detail-hero-price{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--gold-l);position:relative;margin-top:8px}
+.detail-hero-price{font-family:'Outfit',sans-serif;font-size:28px;font-weight:700;color:var(--gold-l);position:relative;margin-top:8px}
 .detail-hero-price span{font-size:13px;font-weight:400;color:rgba(255,255,255,.4);margin-right:4px}
 .subheader{padding:14px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0;background:var(--cream)}
-.subheader-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--ink);flex:1}
+.subheader-title{font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;color:var(--ink);flex:1}
 .fcard{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:14px;box-shadow:var(--sh)}
 .frow{display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border);gap:8px}
 .frow:last-child{border-bottom:none}
@@ -118,7 +117,7 @@ html,body{height:100%;background:#E8E0D0;display:flex;align-items:center;justify
 .frow input,.frow select{flex:1;border:none;background:transparent;font-size:14px;color:var(--ink);font-family:'Outfit',sans-serif;outline:none;min-width:0}
 .frow select{cursor:pointer;-webkit-appearance:none}
 .save-bar{padding:11px 16px;padding-bottom:max(env(safe-area-inset-bottom),11px);border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;background:var(--card)}
-.btn-p{flex:1;padding:13px;background:linear-gradient(135deg,var(--gold-m),var(--gold));border:none;border-radius:14px;color:#fff;font-size:13px;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer;box-shadow:0 3px 12px rgba(192,125,16,.35)}
+.btn-p{flex:1;padding:13px;background:var(--gold);border:none;border-radius:14px;color:#fff;font-size:13px;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer}
 .btn-s{padding:13px 14px;background:var(--cream);border:1px solid var(--border);border-radius:14px;font-size:13px;font-family:'Outfit',sans-serif;cursor:pointer;color:var(--stone);font-weight:500}
 .btn-del{padding:13px 14px;background:var(--rust-l);border:1px solid var(--rust-l);border-radius:14px;font-size:13px;font-family:'Outfit',sans-serif;cursor:pointer;color:var(--rust);font-weight:500}
 .qty-ctrl{display:flex;align-items:center;gap:6px}
@@ -130,11 +129,11 @@ html,body{height:100%;background:#E8E0D0;display:flex;align-items:center;justify
 .qnum-input.active{color:var(--gold);border-color:var(--gold)}
 
 /* ── CALENDARIO ── */
-.cal-wrap{padding:0 16px 4px;flex-shrink:0}
+.cal-wrap{padding:0 20px 4px;flex-shrink:0}
 .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .cal-nav-btn{background:none;border:none;cursor:pointer;color:var(--stone);font-size:22px;padding:0;display:flex;align-items:center;width:32px;height:32px;justify-content:center;border-radius:8px}
 .cal-nav-btn:active{background:var(--gold-l)}
-.cal-month{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--ink)}
+.cal-month{font-family:'Outfit',sans-serif;font-size:17px;font-weight:600;color:var(--ink)}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
 .cal-hdr{font-size:9px;font-weight:600;color:var(--stone-l);text-align:center;padding:2px 0;text-transform:uppercase;letter-spacing:.06em}
 .cal-day{font-size:12px;text-align:center;padding:6px 0;border-radius:10px;cursor:pointer;position:relative;color:var(--stone)}
@@ -166,11 +165,11 @@ html,body{height:100%;background:#E8E0D0;display:flex;align-items:center;justify
 .stock-item{display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border);gap:12px;cursor:pointer}
 .stock-item:last-child{border-bottom:none}
 .stock-item:active{background:var(--gold-l)}
-.stock-icon{width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,var(--cream),var(--border));display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.stock-icon{width:38px;height:38px;border-radius:12px;background:var(--cream);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
 .stock-name{font-size:13px;font-weight:500;color:var(--ink)}
 .stock-sub{font-size:11px;color:var(--stone);margin-top:1px}
 .stock-qty-col{text-align:right;flex-shrink:0}
-.stock-total{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--ink)}
+.stock-total{font-family:'Outfit',sans-serif;font-size:18px;font-weight:600;color:var(--ink)}
 .stock-avail-txt{font-size:11px;color:var(--stone)}
 .stock-avail-txt.low{color:var(--rust)}
 .stock-price-tag{font-size:11px;color:var(--gold);font-weight:600}
@@ -192,22 +191,22 @@ html,body{height:100%;background:#E8E0D0;display:flex;align-items:center;justify
 .budget-sub{font-size:12px;font-weight:600;color:var(--gold);min-width:60px;text-align:right}
 .budget-total-bar{background:var(--gold-l);border-radius:14px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:2px}
 .budget-total-label{font-size:12px;font-weight:600;color:var(--gold)}
-.budget-total-val{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--ink)}
+.budget-total-val{font-family:'Outfit',sans-serif;font-size:22px;font-weight:700;color:var(--ink)}
 .rf-budget-preview{background:var(--gold-l);border-radius:14px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:10px}
 .rf-budget-label{font-size:12px;color:var(--stone);font-weight:500}
-.rf-budget-val{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--ink)}
+.rf-budget-val{font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;color:var(--ink)}
 
 /* ── FINANZAS ── */
 .fin-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
 .fin-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;box-shadow:var(--sh);overflow:hidden;position:relative}
 .fin-card-label{font-size:11px;color:var(--stone);margin-bottom:6px;font-weight:500}
-.fin-card-val{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--ink);line-height:1}
+.fin-card-val{font-family:'Outfit',sans-serif;font-size:22px;font-weight:700;color:var(--ink);line-height:1}
 .fin-card-val.positive{color:var(--sage)}
 .fin-card-val.negative{color:var(--rust)}
 .fin-card-val.gold{color:var(--gold)}
 .balance-card{background:var(--ink);border:none;border-radius:16px;padding:16px;box-shadow:var(--sh2);margin-bottom:4px}
 .balance-label{font-size:11px;color:rgba(255,255,255,.5);margin-bottom:4px;font-weight:500}
-.balance-val{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:var(--gold-l)}
+.balance-val{font-family:'Outfit',sans-serif;font-size:32px;font-weight:700;color:var(--gold-l)}
 .gasto-item{display:flex;align-items:center;padding:11px 14px;border-bottom:1px solid var(--border);gap:10px}
 .gasto-item:last-child{border-bottom:none}
 .gasto-desc{flex:1;font-size:13px;color:var(--ink);font-weight:500}
@@ -265,9 +264,9 @@ html,body{height:100%;background:#E8E0D0;display:flex;align-items:center;justify
   <div class="screen" id="s-stock">
     <div class="topbar">
       <div><div class="topbar-eyebrow">Gestión</div><div class="topbar-title">Stock</div><div class="topbar-sub">Cantidades y precios</div></div>
-      <button onclick="openFormStock(false)" style="background:linear-gradient(135deg,var(--gold-m),var(--gold));border:none;border-radius:12px;color:#fff;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:4px"><i class="ti ti-plus" style="font-size:15px"></i>Agregar</button>
+      <button onclick="openFormStock(false)" style="background:var(--gold);border:none;border-radius:12px;color:#fff;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:4px"><i class="ti ti-plus" style="font-size:15px"></i>Agregar</button>
     </div>
-    <div class="scroll" style="padding:0 16px"><div id="stock-list"></div></div>
+    <div class="scroll" style="padding:0 20px"><div id="stock-list"></div></div>
   </div>
 
   <!-- ══ RESERVAS ══ -->
@@ -281,7 +280,7 @@ html,body{height:100%;background:#E8E0D0;display:flex;align-items:center;justify
       </div>
       <div class="cal-grid" id="cal"></div>
     </div>
-    <div class="scroll" style="padding:0 16px">
+    <div class="scroll" style="padding:0 20px">
       <div class="sec" id="res-day-title">Todos los eventos</div>
       <div id="res-list"></div>
       <div class="sec" id="avail-day-title">Disponible hoy</div>
@@ -299,7 +298,7 @@ html,body{height:100%;background:#E8E0D0;display:flex;align-items:center;justify
       <div class="detail-hero-meta" id="rd-meta"></div>
       <div class="detail-hero-price"><span>$</span><span id="rd-total-price">0</span></div>
     </div>
-    <div class="scroll" style="padding:14px 16px">
+    <div class="scroll" style="padding:16px 20px">
       <div class="sec">Estado de pago</div>
       <div class="card" style="margin-bottom:10px"><div class="pago-opts" id="rd-pago-opts"></div></div>
       <div class="sec">Presupuesto detallado</div>
@@ -307,6 +306,9 @@ html,body{height:100%;background:#E8E0D0;display:flex;align-items:center;justify
       <div class="sec">Stock disponible ese día</div>
       <div class="card" id="rd-avail"></div>
       <div style="display:flex;gap:8px;margin-top:6px">
+        <button class="btn-p" style="flex:1" onclick="shareRes()"><i class="ti ti-share" style="font-size:13px;vertical-align:-1px"></i> Compartir</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
         <button class="btn-s" style="flex:1" onclick="editRes()"><i class="ti ti-edit" style="font-size:13px;vertical-align:-1px"></i> Editar</button>
         <button class="btn-s" style="flex:1;color:var(--rust);border-color:var(--rust-l)" onclick="deleteRes()"><i class="ti ti-trash" style="font-size:13px;vertical-align:-1px"></i> Eliminar</button>
       </div>
@@ -319,7 +321,7 @@ html,body{height:100%;background:#E8E0D0;display:flex;align-items:center;justify
       <button class="btn-back" style="color:var(--stone)" onclick="goBack()"><i class="ti ti-arrow-left"></i></button>
       <div class="subheader-title" id="sf-title">Nuevo material</div>
     </div>
-    <div class="scroll" style="padding:14px 16px">
+    <div class="scroll" style="padding:16px 20px">
       <div class="fcard">
         <div class="frow"><span class="flabel">Nombre</span><input id="sf-nombre" type="text" placeholder="Ej: Copa de vino"/></div>
         <div class="frow"><span class="flabel">Categoría</span><select id="sf-cat"><option value="vajilla">Vajilla</option><option value="cristaleria">Cristalería</option><option value="cubiertos">Cubiertos</option><option value="manteleria">Mantelería</option><option value="mobiliario">Mobiliario</option><option value="otro">Otro</option></select><i class="ti ti-chevron-down" style="font-size:13px;color:var(--stone-l)"></i></div>
@@ -341,10 +343,11 @@ html,body{height:100%;background:#E8E0D0;display:flex;align-items:center;justify
       <button class="btn-back" style="color:var(--stone)" onclick="goBack()"><i class="ti ti-arrow-left"></i></button>
       <div class="subheader-title" id="rf-title">Nueva reserva</div>
     </div>
-    <div class="scroll" style="padding:14px 16px">
+    <div class="scroll" style="padding:16px 20px">
       <div class="fcard">
         <div class="frow"><span class="flabel">Cliente</span><input id="rf-cliente" type="text" placeholder="Nombre del cliente"/></div>
         <div class="frow"><span class="flabel">Fecha</span><input id="rf-fecha" type="date"/></div>
+        <div class="frow"><span class="flabel">Hasta</span><input id="rf-fecha-fin" type="date"/><span style="font-size:11px;color:var(--stone-l);margin-left:8px">Opcional, evento de varios días</span></div>
         <div class="frow"><span class="flabel">Hora</span><input id="rf-hora" type="time" value="18:00"/></div>
         <div class="frow"><span class="flabel">Notas</span><input id="rf-notas" type="text" placeholder="Opcional…"/></div>
       </div>
@@ -396,7 +399,7 @@ html,body{height:100%;background:#E8E0D0;display:flex;align-items:center;justify
         <div class="frow"><span class="flabel">Monto</span><span style="color:var(--stone);margin-right:4px">$</span><input id="fg-monto" type="number" placeholder="0" inputmode="numeric"/></div>
         <div class="frow"><span class="flabel">Fecha</span><input id="fg-fecha" type="date"/></div>
         <div style="padding:10px 14px">
-          <button onclick="saveGasto()" style="width:100%;padding:11px;background:linear-gradient(135deg,var(--gold-m),var(--gold));border:none;border-radius:12px;color:#fff;font-size:13px;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer">Agregar gasto</button>
+          <button onclick="saveGasto()" style="width:100%;padding:11px;background:var(--gold);border:none;border-radius:12px;color:#fff;font-size:13px;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer">Agregar gasto</button>
         </div>
       </div>
     </div>
@@ -527,8 +530,12 @@ function toast(m){const t=document.getElementById('toast');t.textContent=m;t.cla
 function byId(id){return stock.find(s=>s.id===id)}
 function todayStr(){return new Date().toISOString().split('T')[0]}
 function fmtDate(d){if(!d)return'';const[,m,day]=d.split('-');return`${parseInt(day)} ${MONTHS[parseInt(m)-1]}`}
-function rentedOn(date){const r={};reservas.filter(x=>x.date===date).forEach(x=>x.items.forEach(it=>{r[it.sid]=(r[it.sid]||0)+it.qty}));return r}
+function fmtDateRange(start,end){if(!end||end===start)return fmtDate(start);const[,m1,d1]=start.split('-'),[,m2,d2]=end.split('-');return m1===m2?`${parseInt(d1)}-${parseInt(d2)} ${MONTHS[parseInt(m1)-1]}`:`${fmtDate(start)} - ${fmtDate(end)}`}
+function dateInRange(d,start,end){return d>=start&&d<=(end||start)}
+function eachDateStr(start,end){const dates=[];let d=new Date(start+'T00:00:00');const e=new Date((end||start)+'T00:00:00');while(d<=e){dates.push(d.toISOString().split('T')[0]);d.setDate(d.getDate()+1)}return dates}
+function rentedOn(date){const r={};reservas.filter(x=>dateInRange(date,x.date,x.dateEnd||x.date)).forEach(x=>x.items.forEach(it=>{r[it.sid]=(r[it.sid]||0)+it.qty}));return r}
 function availOn(date){const r=rentedOn(date),a={};stock.forEach(s=>{a[s.id]=s.total-(r[s.id]||0)});return a}
+function availOnRange(start,end){const days=eachDateStr(start,end),a={};stock.forEach(s=>a[s.id]=s.total);days.forEach(d=>{const da=availOn(d);stock.forEach(s=>{a[s.id]=Math.min(a[s.id],da[s.id])})});return a}
 function aColor(pct){return pct>50?'#3E6B4A':pct>20?'#C07D10':'#A83820'}
 function calcResBudget(r){return r.items.reduce((s,it)=>{const st=byId(it.sid);return s+(st&&st.precio?st.precio*it.qty:0)},0)}
 function pagoBadge(pago){const c=PAGO_CFG[pago]||PAGO_CFG.pendiente;return`<span class="badge ${c.badge}">${c.label}</span>`}
@@ -550,13 +557,13 @@ function goBack(){document.getElementById('bottomnav').style.display='flex';goTo
 
 // ── HOME ──────────────────────────────────────────────────
 function renderHome(){
-  const today=todayStr(), tr=reservas.filter(r=>r.date===today);
+  const today=todayStr(), tr=reservas.filter(r=>dateInRange(today,r.date,r.dateEnd||r.date));
   const cobrado=reservas.filter(r=>r.pago==='pagado').reduce((s,r)=>s+calcResBudget(r),0);
   document.getElementById('home-sub').textContent=`${reservas.length} reservas activas`;
   document.getElementById('home-stats').innerHTML=`
     <div class="stat-card" onclick="goTo('res')"><div class="stat-card-glow"></div><div class="stat-card-icon">📅</div><div class="stat-card-val">${tr.length}</div><div class="stat-card-label">eventos hoy</div></div>
     <div class="stat-card" onclick="goTo('fin')"><div class="stat-card-glow"></div><div class="stat-card-icon">💵</div><div class="stat-card-val" style="font-size:${cobrado>=100000?'16px':'22px'}">$${fmtNum(cobrado)}</div><div class="stat-card-label">cobrado total</div></div>`;
-  const ups=reservas.filter(r=>r.date>=today).sort((a,b)=>a.date.localeCompare(b.date)||a.hora.localeCompare(b.hora)).slice(0,5);
+  const ups=reservas.filter(r=>(r.dateEnd||r.date)>=today).sort((a,b)=>a.date.localeCompare(b.date)||a.hora.localeCompare(b.hora)).slice(0,5);
   const el=document.getElementById('home-next-res');
   if(!ups.length){el.innerHTML='<p class="empty">Sin reservas próximas</p>';return}
   el.innerHTML=ups.map(r=>{
@@ -565,7 +572,7 @@ function renderHome(){
     const more=r.items.length>2?`<span class="badge b-gray">+${r.items.length-2}</span>`:'';
     return`<div class="res-card" onclick="openResDetail(${r.id})">
       <div class="res-head">
-        <div style="flex:1;min-width:0"><div class="res-name">${r.client}</div><div class="res-meta"><i class="ti ti-calendar"></i>${fmtDate(r.date)}<i class="ti ti-clock"></i>${r.hora}</div></div>
+        <div style="flex:1;min-width:0"><div class="res-name">${r.client}</div><div class="res-meta"><i class="ti ti-calendar"></i>${fmtDateRange(r.date,r.dateEnd)}<i class="ti ti-clock"></i>${r.hora}</div></div>
         <div class="res-right">${pagoBadge(r.pago||'pendiente')}${budget>0?`<span class="res-price">$${fmtNum(budget)}</span>`:''}</div>
       </div>
       <div class="res-pills">${pills}${more}</div></div>`}).join('');
@@ -573,11 +580,10 @@ function renderHome(){
 
 // ── STOCK ──────────────────────────────────────────────────
 function renderStock(){
-  const av=availOn(todayStr()); let html='';
-  ['vajilla','cristaleria','cubiertos','manteleria','mobiliario','otro'].forEach(cat=>{
-    const items=stock.filter(s=>s.cat===cat); if(!items.length)return;
-    html+=`<div class="sec">${CATS[cat]}</div><div class="card">`;
-    html+=items.map(s=>{const a=av[s.id]||0;return`<div class="stock-item" onclick="openFormStock(${s.id})">
+  const av=availOn(todayStr());
+  const items=[...stock].sort((a,b)=>(a.orden??Infinity)-(b.orden??Infinity)||a.id-b.id);
+  let html=!items.length?'<p class="empty" style="margin-top:40px">Agregá tu primer material con el botón +</p>'
+    :'<div class="card">'+items.map(s=>{const a=av[s.id]||0;return`<div class="stock-item" onclick="openFormStock(${s.id})">
       <div class="stock-icon">${s.emoji}</div>
       <div style="flex:1;min-width:0">
         <div class="stock-name">${s.name}</div>
@@ -587,10 +593,7 @@ function renderStock(){
         <div class="stock-total">${s.total}</div>
         <div class="stock-avail-txt${a<s.total*.2?' low':''}">${a} disp.</div>
       </div>
-    </div>`}).join('');
-    html+=`</div>`;
-  });
-  if(!stock.length)html='<p class="empty" style="margin-top:40px">Agregá tu primer material con el botón +</p>';
+    </div>`}).join('')+'</div>';
   document.getElementById('stock-list').innerHTML=html;
 }
 
@@ -608,11 +611,13 @@ function buildCal(){
   const y=viewYear, m=viewMonth;
   const fd=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
   const todayFull=todayStr();
-  const withRes=new Set(reservas.map(r=>{
-    const d=new Date(r.date);
-    if(d.getFullYear()===y&&d.getMonth()===m)return d.getDate();
-    return null;
-  }).filter(Boolean));
+  const withRes=new Set();
+  reservas.forEach(r=>{
+    eachDateStr(r.date,r.dateEnd||r.date).forEach(ds=>{
+      const d=new Date(ds+'T00:00:00');
+      if(d.getFullYear()===y&&d.getMonth()===m)withRes.add(d.getDate());
+    });
+  });
   document.getElementById('cal-month-label').textContent=`${MONTHS[m]} ${y}`;
   const hdrs=['D','L','M','X','J','V','S'].map(d=>`<div class="cal-hdr">${d}</div>`).join('');
   let cells='';
@@ -640,8 +645,8 @@ function renderAvail(date){
 
 function renderResList(fd){
   const list=fd
-    ?reservas.filter(r=>r.date===fd).sort((a,b)=>a.hora.localeCompare(b.hora))
-    :reservas.filter(r=>{const d=new Date(r.date);return d.getFullYear()===viewYear&&d.getMonth()===viewMonth}).sort((a,b)=>a.date.localeCompare(b.date)||a.hora.localeCompare(b.hora));
+    ?reservas.filter(r=>dateInRange(fd,r.date,r.dateEnd||r.date)).sort((a,b)=>a.hora.localeCompare(b.hora))
+    :reservas.filter(r=>eachDateStr(r.date,r.dateEnd||r.date).some(ds=>{const d=new Date(ds+'T00:00:00');return d.getFullYear()===viewYear&&d.getMonth()===viewMonth})).sort((a,b)=>a.date.localeCompare(b.date)||a.hora.localeCompare(b.hora));
   document.getElementById('res-day-title').textContent=fd
     ?`Reservas — ${fmtDate(fd)} (${list.length})`
     :`${MONTHS[viewMonth]} ${viewYear} (${list.length})`;
@@ -653,7 +658,7 @@ function renderResList(fd){
     const more=r.items.length>3?`<span class="badge b-gray">+${r.items.length-3} más</span>`:'';
     return`<div class="res-card" onclick="openResDetail(${r.id})">
       <div class="res-head">
-        <div style="flex:1;min-width:0"><div class="res-name">${r.client}</div><div class="res-meta"><i class="ti ti-calendar"></i>${fmtDate(r.date)}<i class="ti ti-clock"></i>${r.hora}${r.notas?`<span>${r.notas}</span>`:''}</div></div>
+        <div style="flex:1;min-width:0"><div class="res-name">${r.client}</div><div class="res-meta"><i class="ti ti-calendar"></i>${fmtDateRange(r.date,r.dateEnd)}<i class="ti ti-clock"></i>${r.hora}${r.notas?`<span>${r.notas}</span>`:''}</div></div>
         <div class="res-right">${pagoBadge(r.pago||'pendiente')}${budget>0?`<span class="res-price">$${fmtNum(budget)}</span>`:''}</div>
       </div>
       <div class="res-pills">${pills}${more}</div></div>`}).join('');
@@ -665,7 +670,7 @@ function openResDetail(id){
   editingRes=id;
   const budget=calcResBudget(r);
   document.getElementById('rd-name').textContent=r.client;
-  document.getElementById('rd-meta').textContent=`${fmtDate(r.date)} · ${r.hora}${r.notas?' · '+r.notas:''}`;
+  document.getElementById('rd-meta').textContent=`${fmtDateRange(r.date,r.dateEnd)} · ${r.hora}${r.notas?' · '+r.notas:''}`;
   document.getElementById('rd-total-price').textContent=fmtNum(budget);
   const pago=r.pago||'pendiente';
   document.getElementById('rd-pago-opts').innerHTML=Object.entries(PAGO_CFG).map(([k,v])=>
@@ -683,7 +688,7 @@ function openResDetail(id){
     </div>`}).join('');
   const tot=budget>0?`<div class="budget-total-bar"><span class="budget-total-label">Total presupuesto</span><span class="budget-total-val">$${fmtNum(budget)}</span></div>`:'';
   document.getElementById('rd-budget').innerHTML=rows+tot;
-  const av=availOn(r.date);
+  const av=availOnRange(r.date,r.dateEnd||r.date);
   document.getElementById('rd-avail').innerHTML=stock.map(s=>{
     const a=av[s.id]||0,pct=s.total>0?Math.round(a/s.total*100):0,bw=Math.max(0,Math.min(100,pct)),col=aColor(pct);
     return`<div class="avail-row"><span class="avail-emoji">${s.emoji}</span><span class="avail-name">${s.name}</span><div class="avail-bar-wrap"><div class="avail-bar" style="width:${bw}%;background:${col}"></div></div><span class="avail-num" style="color:${col}">${a}</span><span class="avail-of">/ ${s.total}</span></div>`}).join('');
@@ -707,6 +712,28 @@ async function deleteRes(){
   await saveData(); toast('Reserva eliminada'); goBack();
 }
 function editRes(){openFormRes(true)}
+
+async function shareRes(){
+  const r=reservas.find(x=>x.id===editingRes); if(!r)return;
+  const budget=calcResBudget(r);
+  const lines=r.items.map(it=>{
+    const s=byId(it.sid); if(!s)return null;
+    const unit=s.precio||0, sub=unit*it.qty;
+    return `${s.emoji} ${s.name} x${it.qty}${unit?` — $${fmtNum(sub)}`:''}`;
+  }).filter(Boolean);
+  const text=`*Presupuesto — El Rincón*\n\n`+
+    `Cliente: ${r.client}\n`+
+    `Fecha: ${fmtDateRange(r.date,r.dateEnd)}${r.hora?` · ${r.hora}`:''}\n\n`+
+    lines.join('\n')+
+    `\n\n*Total: $${fmtNum(budget)}*\n`+
+    `Estado: ${PAGO_CFG[r.pago||'pendiente'].label}`+
+    (r.notas?`\n\nNotas: ${r.notas}`:'');
+  if(navigator.share){
+    try{ await navigator.share({title:'Presupuesto — '+r.client, text}); return; }
+    catch(e){ if(e.name==='AbortError')return; }
+  }
+  window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');
+}
 
 // ── FORM STOCK ──────────────────────────────────────────
 function openFormStock(id){
@@ -765,6 +792,7 @@ function openFormRes(edit){
     document.getElementById('rf-title').textContent='Editar reserva';
     document.getElementById('rf-cliente').value=r.client;
     document.getElementById('rf-fecha').value=r.date;
+    document.getElementById('rf-fecha-fin').value=(r.dateEnd&&r.dateEnd!==r.date)?r.dateEnd:'';
     document.getElementById('rf-hora').value=r.hora;
     document.getElementById('rf-notas').value=r.notas||'';
     rfPago=r.pago||'pendiente';
@@ -773,6 +801,7 @@ function openFormRes(edit){
     document.getElementById('rf-title').textContent='Nueva reserva';
     document.getElementById('rf-cliente').value='';
     document.getElementById('rf-fecha').value=selDate||todayStr();
+    document.getElementById('rf-fecha-fin').value='';
     document.getElementById('rf-hora').value='18:00';
     document.getElementById('rf-notas').value='';
     editingRes=null;
@@ -789,9 +818,14 @@ function renderPagoOpts(){
     `<button class="pago-opt${rfPago===k?' '+v.cls:''}" onclick="selPago('${k}')">${v.label}</button>`).join('');
 }
 
-function renderRfItems(){
+function rfDateRange(){
   const date=document.getElementById('rf-fecha').value||todayStr();
-  let ba=availOn(date);
+  const dateEnd=document.getElementById('rf-fecha-fin').value||date;
+  return dateEnd<date?[date,date]:[date,dateEnd];
+}
+function renderRfItems(){
+  const[date,dateEnd]=rfDateRange();
+  let ba=availOnRange(date,dateEnd);
   if(editingRes){const r=reservas.find(x=>x.id===editingRes);if(r)r.items.forEach(it=>{ba[it.sid]=(ba[it.sid]||0)+it.qty})}
   document.getElementById('rf-items-list').innerHTML=stock.length
     ?stock.map(s=>{const a=ba[s.id]||0,cur=rfItems[s.id]||0;
@@ -828,8 +862,8 @@ function updateRfBudget(){
   else prev.style.display='none';
 }
 function checkConflicts(){
-  const date=document.getElementById('rf-fecha').value||todayStr();
-  let ba=availOn(date);
+  const[date,dateEnd]=rfDateRange();
+  let ba=availOnRange(date,dateEnd);
   if(editingRes){const r=reservas.find(x=>x.id===editingRes);if(r)r.items.forEach(it=>{ba[it.sid]=(ba[it.sid]||0)+it.qty})}
   const cf=[];
   Object.entries(rfItems).forEach(([sid,qty])=>{if(qty<=0)return;const a=ba[parseInt(sid)]||0;if(qty>a){const s=byId(parseInt(sid));if(s)cf.push(`${s.emoji} ${s.name}: pedís ${qty}, hay ${a}`)}});
@@ -837,20 +871,22 @@ function checkConflicts(){
   if(cf.length){el.classList.add('show');document.getElementById('rf-conflict-text').textContent=cf.join(' · ')}else el.classList.remove('show');
 }
 async function saveRes(){
-  const client=document.getElementById('rf-cliente').value.trim(), date=document.getElementById('rf-fecha').value;
+  const client=document.getElementById('rf-cliente').value.trim();
+  const[date,dateEnd]=rfDateRange();
   if(!client){toast('Escribí el nombre del cliente');return}
   if(!date){toast('Elegí una fecha');return}
   const items=Object.entries(rfItems).filter(([,q])=>q>0).map(([sid,qty])=>({sid:parseInt(sid),qty:parseInt(qty)}));
   if(!items.length){toast('Agregá al menos un material');return}
-  let ba=availOn(date);
+  let ba=availOnRange(date,dateEnd);
   if(editingRes){const r=reservas.find(x=>x.id===editingRes);if(r)r.items.forEach(it=>{ba[it.sid]=(ba[it.sid]||0)+it.qty})}
   for(const{sid,qty}of items){if(qty>(ba[sid]||0)){const s=byId(sid);toast(`Stock insuficiente: ${s?s.name:'material'}`);return}}
   const hora=document.getElementById('rf-hora').value, notas=document.getElementById('rf-notas').value.trim();
-  if(editingRes){const r=reservas.find(x=>x.id===editingRes);r.client=client;r.date=date;r.hora=hora;r.notas=notas;r.items=items;r.pago=rfPago;toast('Reserva actualizada')}
-  else{reservas.push({id:nxtId++,client,date,hora,notas,items,pago:rfPago});toast('Reserva creada ✓')}
+  if(editingRes){const r=reservas.find(x=>x.id===editingRes);r.client=client;r.date=date;r.dateEnd=dateEnd;r.hora=hora;r.notas=notas;r.items=items;r.pago=rfPago;toast('Reserva actualizada')}
+  else{reservas.push({id:nxtId++,client,date,dateEnd,hora,notas,items,pago:rfPago});toast('Reserva creada ✓')}
   editingRes=null; await saveData(); goBack();
 }
-document.getElementById('rf-fecha').addEventListener('change',renderRfItems);
+document.getElementById('rf-fecha').addEventListener('change',()=>{const fin=document.getElementById('rf-fecha-fin');if(fin.value&&fin.value<document.getElementById('rf-fecha').value)fin.value='';renderRfItems()});
+document.getElementById('rf-fecha-fin').addEventListener('change',renderRfItems);
 
 // ── FINANZAS ──────────────────────────────────────────────
 function renderFin(){

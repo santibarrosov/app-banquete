@@ -1,0 +1,42 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "stock": {
+      ".read": true,
+      ".write": true,
+      "$id": {
+        ".validate": "newData.hasChildren(['id','name','cat','emoji','total']) && newData.child('id').isNumber() && newData.child('name').isString() && newData.child('total').isNumber() && newData.child('total').val() >= 0"
+      }
+    },
+
+    "reservas": {
+      ".read": true,
+      ".write": true,
+      "$id": {
+        ".validate": "newData.hasChildren(['id','client','date','items']) && newData.child('id').isNumber() && newData.child('client').isString() && newData.child('date').isString()"
+      }
+    },
+
+    "gastos": {
+      ".read": true,
+      ".write": true,
+      "$id": {
+        ".validate": "newData.hasChildren(['id','desc','monto','fecha']) && newData.child('monto').isNumber()"
+      }
+    },
+
+    "nextId": {
+      ".read": true,
+      ".write": true,
+      ".validate": "newData.isNumber()"
+    },
+
+    "lastEmailSent": {
+      ".read": true,
+      ".write": true,
+      ".validate": "newData.isString()"
+    }
+  }
+}
