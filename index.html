@@ -230,6 +230,22 @@ html,body{height:100%;background:#EDEDED;display:flex;align-items:center;justify
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-txt{font-size:14px;color:var(--stone);font-weight:500}
 .empty{font-size:13px;color:var(--stone);padding:8px 0 14px;text-align:center}
+
+/* ── PAGOS ── */
+.pay-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.pay-sum-l{font-size:10px;font-weight:600;color:var(--stone);text-transform:uppercase;letter-spacing:.06em}
+.pay-sum-v{font-size:16px;font-weight:700;color:var(--ink);margin-top:2px}
+.card-actions{display:flex;gap:8px;padding:10px 14px}
+.card-actions button{flex:1;padding:11px}
+
+/* ── MODAL ── */
+.modal-bg{position:absolute;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-end;z-index:50}
+.modal-bg.show{display:flex}
+.modal{background:var(--card);width:100%;border-radius:22px 22px 0 0;padding:20px 20px max(env(safe-area-inset-bottom),18px)}
+.modal-title{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.modal-txt{font-size:13px;color:var(--stone);line-height:1.5;margin-bottom:8px}
+.modal-txt b{color:var(--ink)}
+.modal button{width:100%;margin-top:8px}
 </style>
 </head>
 <body>
@@ -304,8 +320,12 @@ html,body{height:100%;background:#EDEDED;display:flex;align-items:center;justify
     <div class="scroll" style="padding:16px 20px">
       <div class="sec">Estado de pago</div>
       <div class="card" style="margin-bottom:10px"><div class="pago-opts" id="rd-pago-opts"></div></div>
+      <div class="sec">Pagos</div>
+      <div class="card" id="rd-pagos"></div>
       <div class="sec">Presupuesto detallado</div>
       <div class="card" id="rd-budget"></div>
+      <div class="sec">Roturas y faltantes</div>
+      <div class="card" id="rd-roturas"></div>
       <div class="sec">Stock disponible ese día</div>
       <div class="card" id="rd-avail"></div>
       <div style="display:flex;gap:8px;margin-top:6px">
@@ -331,6 +351,7 @@ html,body{height:100%;background:#EDEDED;display:flex;align-items:center;justify
         <div class="frow"><span class="flabel">Emoji</span><input id="sf-emoji" type="text" placeholder="🍽️" maxlength="2" style="width:44px;flex:none;font-size:20px;text-align:center"/><span style="font-size:11px;color:var(--stone-l);margin-left:8px">Icono del ítem</span></div>
         <div class="frow"><span class="flabel">Cantidad</span><div class="qty-ctrl"><button class="qbtn" onclick="chgQF(-1,'sf-qty')">−</button><input type="number" class="qnum-input" id="sf-qty" value="100" min="1" inputmode="numeric"/><button class="qbtn" onclick="chgQF(+1,'sf-qty')">+</button></div></div>
         <div class="frow"><span class="flabel">Precio/ud</span><span style="font-size:15px;color:var(--stone);margin-right:4px">$</span><input id="sf-precio" type="number" placeholder="0" inputmode="numeric"/></div>
+        <div class="frow"><span class="flabel">Reposición</span><span style="font-size:15px;color:var(--stone);margin-right:4px">$</span><input id="sf-repo" type="number" placeholder="Lo que se cobra si se rompe" inputmode="numeric"/></div>
       </div>
     </div>
     <div class="save-bar" id="sf-save-bar">
@@ -353,9 +374,13 @@ html,body{height:100%;background:#EDEDED;display:flex;align-items:center;justify
         <div class="frow"><span class="flabel">Hasta</span><input id="rf-fecha-fin" type="date"/><span style="font-size:11px;color:var(--stone-l);margin-left:8px">Opcional, evento de varios días</span></div>
         <div class="frow"><span class="flabel">Hora</span><input id="rf-hora" type="time" value="18:00"/></div>
         <div class="frow"><span class="flabel">Notas</span><input id="rf-notas" type="text" placeholder="Opcional…"/></div>
+        <div class="frow"><span class="flabel">Flete</span><span style="font-size:15px;color:var(--stone);margin-right:4px">$</span><input id="rf-flete" type="number" placeholder="0" inputmode="numeric" oninput="updateRfBudget()"/></div>
       </div>
       <div class="sec">Estado de pago</div>
       <div class="card" style="margin-bottom:14px"><div class="pago-opts" id="rf-pago-opts"></div></div>
+      <div class="fcard" id="rf-senia-card">
+        <div class="frow"><span class="flabel">Seña</span><span style="font-size:15px;color:var(--stone);margin-right:4px">$</span><input id="rf-senia" type="number" placeholder="Lo que dejó de adelanto" inputmode="numeric"/></div>
+      </div>
       <div class="sec">Materiales</div>
       <div class="card" id="rf-items-list"></div>
       <div class="conflict-box" id="rf-conflict"><i class="ti ti-alert-triangle" style="font-size:16px;flex-shrink:0;margin-top:1px"></i><span id="rf-conflict-text"></span></div>
@@ -415,6 +440,7 @@ html,body{height:100%;background:#EDEDED;display:flex;align-items:center;justify
     <button class="navbtn" id="nav-fin" onclick="goTo('fin')"><i class="ti ti-chart-bar"></i>Finanzas</button>
   </nav>
   <div class="toast" id="toast"></div>
+  <div class="modal-bg" id="modal"><div class="modal"><div class="modal-title" id="modal-title"></div><div class="modal-txt" id="modal-txt"></div><div id="modal-btns"></div></div></div>
 </div>
 
 <script>
@@ -463,7 +489,7 @@ const DEFAULT_STOCK=[
 // ── STATE ──────────────────────────────────────────────────
 let stock=[], reservas=[], gastos=[], nxtId=100;
 let sfEditId=null, editingRes=null, prevScreen='home', selDate=null;
-let rfItems={}, rfPago='pendiente';
+let rfItems={}, rfPrecios={}, rfPago='pendiente';
 let viewYear=new Date().getFullYear(), viewMonth=new Date().getMonth();
 
 // ── FIREBASE ──────────────────────────────────────────────
@@ -485,6 +511,7 @@ async function initFirebase(){
     nxtId    = iD || 100;
     gastos   = gD ? Object.values(gD) : [];
     if(!sD){ const m={};DEFAULT_STOCK.forEach(s=>{m[s.id]=s});await window._fbSet('stock',m); }
+    if(migrateReservas())await saveData();
     document.getElementById('loading-overlay').style.display='none';
     setSyncStatus('ok','En línea',fmtTime(new Date()));
     renderHome();
@@ -495,7 +522,7 @@ async function initFirebase(){
     });
     window._fbOn('reservas', val=>{
       const nr=val?Object.values(val):[];
-      if(JSON.stringify(nr)!==JSON.stringify(reservas)){reservas=nr;refreshCurrentScreen();setSyncStatus('ok','Actualizado',fmtTime(new Date()));toast('↻ Datos actualizados');}
+      if(JSON.stringify(nr)!==JSON.stringify(reservas)){reservas=nr;if(migrateReservas())saveData();refreshCurrentScreen();setSyncStatus('ok','Actualizado',fmtTime(new Date()));toast('↻ Datos actualizados');}
     });
     window._fbOn('gastos', val=>{
       const ng=val?Object.values(val):[];
@@ -540,7 +567,44 @@ function rentedOn(date){const r={};reservas.filter(x=>dateInRange(date,x.date,x.
 function availOn(date){const r=rentedOn(date),a={};stock.forEach(s=>{a[s.id]=s.total-(r[s.id]||0)});return a}
 function availOnRange(start,end){const days=eachDateStr(start,end),a={};stock.forEach(s=>a[s.id]=s.total);days.forEach(d=>{const da=availOn(d);stock.forEach(s=>{a[s.id]=Math.min(a[s.id],da[s.id])})});return a}
 function aColor(pct){return pct>50?'#3E6B4A':pct>20?'#C07D10':'#A83820'}
-function calcResBudget(r){return r.items.reduce((s,it)=>{const st=byId(it.sid);return s+(st&&st.precio?st.precio*it.qty:0)},0)}
+const GONE={name:'Material eliminado',emoji:'📦'};
+// Cada ítem de reserva guarda su precio: los cambios en Stock no la afectan salvo que se elija actualizarla
+function itemPrice(it){if(it.precio!=null)return it.precio;const s=byId(it.sid);return s&&s.precio||0}
+function calcRoturas(r){return(r.roturas||[]).reduce((s,x)=>s+(x.precio||0)*x.qty,0)}
+function calcResBudget(r){return r.items.reduce((s,it)=>s+itemPrice(it)*it.qty,0)+(r.flete||0)+calcRoturas(r)}
+function calcPagado(r){return(r.pagos||[]).reduce((s,p)=>s+(p.monto||0),0)}
+function calcSaldo(r){return Math.max(0,calcResBudget(r)-calcPagado(r))}
+// Registra como pago lo que falte cobrar; devuelve el monto registrado
+function cobrarTodo(r){const sd=calcSaldo(r);if(sd>0)(r.pagos=r.pagos||[]).push({monto:sd,fecha:todayStr()});return sd}
+// Ajusta el estado según lo cobrado (Señado y Parcial elegidos a mano se respetan)
+function syncPago(r){
+  const tot=calcResBudget(r),pag=calcPagado(r);
+  if(pag>=tot&&(pag>0||r.pago==='pagado'))r.pago='pagado';
+  else if(r.pago==='pagado')r.pago=pag>0?'parcial':'pendiente';
+  else if(pag>0&&(r.pago||'pendiente')==='pendiente')r.pago='senado';
+}
+// Reservas creadas antes de guardar precios: se fija el precio actual y, si estaban pagadas, el pago completo
+function migrateReservas(){
+  let changed=false;
+  reservas.forEach(r=>{
+    if(!r.items.some(it=>it.precio==null))return;
+    if(r.pago==='pagado'&&!r.pagos){const b=calcResBudget(r);if(b>0)r.pagos=[{monto:b,fecha:r.date}]}
+    r.items.forEach(it=>{if(it.precio==null)it.precio=itemPrice(it)});
+    changed=true;
+  });
+  return changed;
+}
+function askChoice(title,html,opts){
+  return new Promise(res=>{
+    const bg=document.getElementById('modal');
+    document.getElementById('modal-title').textContent=title;
+    document.getElementById('modal-txt').innerHTML=html;
+    document.getElementById('modal-btns').innerHTML=opts.map((o,i)=>`<button class="${i?'btn-s':'btn-p'}" data-i="${i}">${o.label}</button>`).join('');
+    const close=v=>{bg.classList.remove('show');bg.onclick=null;res(v)};
+    bg.onclick=e=>{if(e.target===bg)return close(null);const b=e.target.closest('[data-i]');if(b)close(opts[b.dataset.i].value)};
+    bg.classList.add('show');
+  });
+}
 function pagoBadge(pago){const c=PAGO_CFG[pago]||PAGO_CFG.pendiente;return`<span class="badge ${c.badge}">${c.label}</span>`}
 
 // ── NAV ──────────────────────────────────────────────────
@@ -561,7 +625,7 @@ function goBack(){document.getElementById('bottomnav').style.display='flex';goTo
 // ── HOME ──────────────────────────────────────────────────
 function renderHome(){
   const today=todayStr(), tr=reservas.filter(r=>dateInRange(today,r.date,r.dateEnd||r.date));
-  const cobrado=reservas.filter(r=>r.pago==='pagado').reduce((s,r)=>s+calcResBudget(r),0);
+  const cobrado=reservas.reduce((s,r)=>s+calcPagado(r),0);
   document.getElementById('home-sub').textContent=`${reservas.length} reservas activas`;
   document.getElementById('home-stats').innerHTML=`
     <div class="stat-card" onclick="goTo('res')"><div class="stat-card-glow"></div><div class="stat-card-icon">📅</div><div class="stat-card-val">${tr.length}</div><div class="stat-card-label">eventos hoy</div></div>
@@ -725,9 +789,17 @@ function renderResList(fd){
 }
 
 // ── DETALLE RESERVA ──────────────────────────────────────
+function curRes(){return reservas.find(x=>x.id===editingRes)}
 function openResDetail(id){
   const r=reservas.find(x=>x.id===id); if(!r)return;
   editingRes=id;
+  renderResDetail(r);
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-res-detail').classList.add('active');
+  document.getElementById('bottomnav').style.display='none';
+}
+
+function renderResDetail(r){
   const budget=calcResBudget(r);
   document.getElementById('rd-name').textContent=r.client;
   document.getElementById('rd-meta').textContent=`${fmtDateRange(r.date,r.dateEnd)} · ${r.hora}${r.notas?' · '+r.notas:''}`;
@@ -735,10 +807,11 @@ function openResDetail(id){
   const pago=r.pago||'pendiente';
   document.getElementById('rd-pago-opts').innerHTML=Object.entries(PAGO_CFG).map(([k,v])=>
     `<button class="pago-opt${pago===k?' '+v.cls:''}" onclick="setPagoDetail('${k}')">${v.label}</button>`).join('');
+  renderPagos(r);
   // Budget breakdown
   const rows=r.items.map(it=>{
-    const s=byId(it.sid); if(!s)return'';
-    const unit=s.precio||0, sub=unit*it.qty;
+    const s=byId(it.sid)||GONE;
+    const unit=itemPrice(it), sub=unit*it.qty;
     return`<div class="budget-row">
       <span style="font-size:16px;flex-shrink:0">${s.emoji}</span>
       <span class="budget-name">${s.name}</span>
@@ -746,25 +819,95 @@ function openResDetail(id){
       <span class="budget-unit">${unit>0?`$${fmtNum(unit)}`:'—'}</span>
       <span class="budget-sub">${sub>0?`$${fmtNum(sub)}`:'—'}</span>
     </div>`}).join('');
+  const flete=r.flete?`<div class="budget-row"><span style="font-size:16px;flex-shrink:0">🚚</span><span class="budget-name">Flete</span><span class="budget-sub">$${fmtNum(r.flete)}</span></div>`:'';
+  const rot=calcRoturas(r)?`<div class="budget-row"><span style="font-size:16px;flex-shrink:0">⚠️</span><span class="budget-name">Roturas y faltantes</span><span class="budget-sub" style="color:var(--rust)">$${fmtNum(calcRoturas(r))}</span></div>`:'';
   const tot=budget>0?`<div class="budget-total-bar"><span class="budget-total-label">Total presupuesto</span><span class="budget-total-val">$${fmtNum(budget)}</span></div>`:'';
-  document.getElementById('rd-budget').innerHTML=rows+tot;
+  document.getElementById('rd-budget').innerHTML=rows+flete+rot+tot;
+  renderRoturas(r);
   const av=availOnRange(r.date,r.dateEnd||r.date);
   document.getElementById('rd-avail').innerHTML=stock.map(s=>{
     const a=av[s.id]||0,pct=s.total>0?Math.round(a/s.total*100):0,bw=Math.max(0,Math.min(100,pct)),col=aColor(pct);
     return`<div class="avail-row"><span class="avail-emoji">${s.emoji}</span><span class="avail-name">${s.name}</span><div class="avail-bar-wrap"><div class="avail-bar" style="width:${bw}%;background:${col}"></div></div><span class="avail-num" style="color:${col}">${a}</span><span class="avail-of">/ ${s.total}</span></div>`}).join('');
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('s-res-detail').classList.add('active');
-  document.getElementById('bottomnav').style.display='none';
 }
 
 async function setPagoDetail(pago){
-  const r=reservas.find(x=>x.id===editingRes); if(!r)return;
-  r.pago=pago; await saveData();
-  document.querySelectorAll('#rd-pago-opts .pago-opt').forEach((btn,i)=>{
-    const k=Object.keys(PAGO_CFG)[i];
-    btn.className='pago-opt'+(pago===k?' '+PAGO_CFG[k].cls:'');
-  });
-  toast(`Estado → ${PAGO_CFG[pago].label}`);
+  const r=curRes(); if(!r)return;
+  let msg=`Estado → ${PAGO_CFG[pago].label}`;
+  if(pago==='pagado'){const sd=cobrarTodo(r);if(sd)msg=`Saldo cobrado: $${fmtNum(sd)}`}
+  r.pago=pago; await saveData(); renderResDetail(r); toast(msg);
+}
+
+// ── PAGOS ──────────────────────────────────────────────────
+function renderPagos(r){
+  const tot=calcResBudget(r),pag=calcPagado(r),sd=calcSaldo(r);
+  const sum=`<div class="pay-sum">
+    <div><div class="pay-sum-l">Total</div><div class="pay-sum-v">$${fmtNum(tot)}</div></div>
+    <div><div class="pay-sum-l">Pagado</div><div class="pay-sum-v" style="color:var(--sage)">$${fmtNum(pag)}</div></div>
+    <div><div class="pay-sum-l">Saldo</div><div class="pay-sum-v" style="color:${sd>0?'var(--rust)':'var(--sage)'}">$${fmtNum(sd)}</div></div>
+  </div>`;
+  const rows=(r.pagos||[]).map((p,i)=>`<div class="budget-row">
+    <span style="font-size:16px;flex-shrink:0">💵</span>
+    <span class="budget-name">${i===0&&r.pagos.length>1?'Seña':'Pago'} · ${fmtDate(p.fecha)}</span>
+    <span class="budget-sub" style="color:var(--sage)">$${fmtNum(p.monto)}</span>
+    <button class="gasto-del" onclick="delPago(${i})"><i class="ti ti-x"></i></button>
+  </div>`).join('');
+  const form=`<div class="frow"><span style="font-size:15px;color:var(--stone)">$</span><input id="pg-monto" type="number" placeholder="Monto" inputmode="numeric"/><input id="pg-fecha" type="date" value="${todayStr()}" style="flex:none;width:128px"/></div>
+    <div class="card-actions">${sd>0?`<button class="btn-s" onclick="cobrarSaldo()">Cobrar saldo</button>`:''}<button class="btn-p" onclick="addPago()">Agregar pago</button></div>`;
+  document.getElementById('rd-pagos').innerHTML=sum+rows+form;
+}
+async function addPago(){
+  const r=curRes(); if(!r)return;
+  const monto=parseInt(document.getElementById('pg-monto').value)||0;
+  if(monto<=0){toast('Escribí el monto');return}
+  (r.pagos=r.pagos||[]).push({monto,fecha:document.getElementById('pg-fecha').value||todayStr()});
+  syncPago(r); await saveData(); renderResDetail(r); toast(`Pago de $${fmtNum(monto)} registrado`);
+}
+async function cobrarSaldo(){
+  const r=curRes(); if(!r)return;
+  const sd=cobrarTodo(r); if(!sd)return;
+  syncPago(r); await saveData(); renderResDetail(r); toast(`Saldo cobrado: $${fmtNum(sd)}`);
+}
+async function delPago(i){
+  const r=curRes(); if(!r||!confirm('¿Eliminar este pago?'))return;
+  r.pagos.splice(i,1); syncPago(r); await saveData(); renderResDetail(r);
+}
+
+// ── ROTURAS ────────────────────────────────────────────────
+function renderRoturas(r){
+  const rows=(r.roturas||[]).map((x,i)=>{const s=byId(x.sid)||GONE;return`<div class="budget-row">
+    <span style="font-size:16px;flex-shrink:0">${s.emoji}</span>
+    <span class="budget-name">${s.name}</span>
+    <span class="budget-qty">×${x.qty}</span>
+    <span class="budget-sub" style="color:var(--rust)">$${fmtNum(x.precio*x.qty)}</span>
+    <button class="gasto-del" onclick="delRotura(${i})"><i class="ti ti-x"></i></button>
+  </div>`}).join('');
+  const opts=r.items.map(it=>{const s=byId(it.sid);return s?`<option value="${s.id}">${s.emoji} ${s.name}</option>`:''}).join('');
+  const form=opts?`<div class="frow"><span class="flabel">Material</span><select id="rt-sid" onchange="rotSel()">${opts}</select><i class="ti ti-chevron-down" style="font-size:13px;color:var(--stone-l)"></i></div>
+    <div class="frow"><span class="flabel">Cantidad</span><input id="rt-qty" type="number" value="1" min="1" inputmode="numeric" style="flex:none;width:50px"/><span style="font-size:12px;color:var(--stone);margin-left:auto">$/ud</span><input id="rt-precio" type="number" inputmode="numeric" style="flex:none;width:80px;text-align:right"/></div>
+    <div class="card-actions"><button class="btn-p" style="background:var(--rust)" onclick="addRotura()">Registrar rotura</button></div>`:'';
+  document.getElementById('rd-roturas').innerHTML=rows+form;
+  if(opts)rotSel();
+}
+// Precio sugerido: el de reposición del material; si no tiene, el de alquiler de la reserva
+function rotSel(){
+  const r=curRes(), sid=parseInt(document.getElementById('rt-sid').value), s=byId(sid), it=r&&r.items.find(x=>x.sid===sid);
+  document.getElementById('rt-precio').value=(s&&s.repo)||(it?itemPrice(it):0)||'';
+}
+async function addRotura(){
+  const r=curRes(); if(!r)return;
+  const sid=parseInt(document.getElementById('rt-sid').value), s=byId(sid);
+  const qty=parseInt(document.getElementById('rt-qty').value)||0, precio=Math.max(0,parseInt(document.getElementById('rt-precio').value)||0);
+  if(!s||qty<=0){toast('Elegí el material y la cantidad');return}
+  const it=r.items.find(x=>x.sid===sid), ya=(r.roturas||[]).filter(x=>x.sid===sid).reduce((a,x)=>a+x.qty,0);
+  if(it&&qty+ya>it.qty){toast(`Se alquilaron ${it.qty}${ya?`, ya hay ${ya} registradas`:''}`);return}
+  (r.roturas=r.roturas||[]).push({sid,qty,precio});
+  s.total=Math.max(0,s.total-qty);
+  syncPago(r); await saveData(); renderResDetail(r); toast(`Rotura registrada · quedan ${s.total} ${s.name}`);
+}
+async function delRotura(i){
+  const r=curRes(); if(!r||!confirm('¿Eliminar esta rotura? Las unidades vuelven al stock.'))return;
+  const[x]=r.roturas.splice(i,1), s=byId(x.sid); if(s)s.total+=x.qty;
+  syncPago(r); await saveData(); renderResDetail(r);
 }
 async function deleteRes(){
   if(!confirm('¿Eliminar esta reserva?'))return;
@@ -777,15 +920,19 @@ async function shareRes(){
   const r=reservas.find(x=>x.id===editingRes); if(!r)return;
   const budget=calcResBudget(r);
   const lines=r.items.map(it=>{
-    const s=byId(it.sid); if(!s)return null;
-    const unit=s.precio||0, sub=unit*it.qty;
+    const s=byId(it.sid)||GONE;
+    const unit=itemPrice(it), sub=unit*it.qty;
     return `${s.emoji} ${s.name} x${it.qty}${unit?` — $${fmtNum(sub)}`:''}`;
-  }).filter(Boolean);
+  });
+  if(r.flete)lines.push(`🚚 Flete — $${fmtNum(r.flete)}`);
+  (r.roturas||[]).forEach(x=>{const s=byId(x.sid)||GONE;lines.push(`⚠️ Rotura/faltante: ${s.name} x${x.qty} — $${fmtNum(x.precio*x.qty)}`)});
+  const pag=calcPagado(r);
   const text=`*Presupuesto — El Rincón*\n\n`+
     `Cliente: ${r.client}\n`+
     `Fecha: ${fmtDateRange(r.date,r.dateEnd)}${r.hora?` · ${r.hora}`:''}\n\n`+
     lines.join('\n')+
     `\n\n*Total: $${fmtNum(budget)}*\n`+
+    (pag?`Pagado: $${fmtNum(pag)}\n*Saldo: $${fmtNum(calcSaldo(r))}*\n`:'')+
     `Estado: ${PAGO_CFG[r.pago||'pendiente'].label}`+
     (r.notas?`\n\nNotas: ${r.notas}`:'');
   if(navigator.share){
@@ -807,6 +954,7 @@ function openFormStock(id){
     document.getElementById('sf-emoji').value=s.emoji;
     document.getElementById('sf-qty').value=s.total;
     document.getElementById('sf-precio').value=s.precio||'';
+    document.getElementById('sf-repo').value=s.repo||'';
     delBtn.style.display='flex';
   } else {
     document.getElementById('sf-title').textContent='Nuevo material';
@@ -815,6 +963,7 @@ function openFormStock(id){
     document.getElementById('sf-emoji').value='';
     document.getElementById('sf-qty').value=100;
     document.getElementById('sf-precio').value='';
+    document.getElementById('sf-repo').value='';
     delBtn.style.display='none';
   }
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -839,14 +988,29 @@ async function saveStock(){
   const emoji=document.getElementById('sf-emoji').value.trim()||'📦';
   const total=Math.max(1,parseInt(document.getElementById('sf-qty').value)||1);
   const precio=parseInt(document.getElementById('sf-precio').value)||0;
-  if(sfEditId){const s=byId(sfEditId);s.name=name;s.cat=cat;s.emoji=emoji;s.total=total;s.precio=precio;toast('Material actualizado')}
-  else{stock.push({id:nxtId++,name,cat,emoji,total,precio});toast('Material agregado')}
+  const repo=parseInt(document.getElementById('sf-repo').value)||0;
+  if(sfEditId){
+    const s=byId(sfEditId);
+    // Cambio de precio: las reservas señadas/pagadas no se tocan; en las pendientes elige el usuario
+    const afect=precio===(s.precio||0)?[]:reservas.filter(r=>(r.pago||'pendiente')==='pendiente'&&r.items.some(it=>it.sid===s.id&&itemPrice(it)!==precio));
+    if(afect.length){
+      const lista=afect.slice(0,5).map(r=>`• ${r.client} (${fmtDateRange(r.date,r.dateEnd)})`).join('<br>')+(afect.length>5?`<br>• y ${afect.length-5} más`:'');
+      const ch=await askChoice('Cambio de precio',
+        `${afect.length===1?'Hay 1 reserva pendiente':`Hay ${afect.length} reservas pendientes`} con <b>${name}</b>:<br>${lista}<br><br>¿Con qué precio querés que queden? Las señadas o pagadas mantienen su precio.`,
+        [{label:`Precio nuevo ($${fmtNum(precio)})`,value:'nuevo'},{label:'Mantener el precio anterior',value:'viejo'}]);
+      if(!ch)return;
+      if(ch==='nuevo')afect.forEach(r=>r.items.forEach(it=>{if(it.sid===s.id)it.precio=precio}));
+    }
+    reservas.forEach(r=>r.items.forEach(it=>{if(it.sid===s.id&&it.precio==null)it.precio=s.precio||0}));
+    s.name=name;s.cat=cat;s.emoji=emoji;s.total=total;s.precio=precio;s.repo=repo;toast('Material actualizado');
+  }
+  else{stock.push({id:nxtId++,name,cat,emoji,total,precio,repo});toast('Material agregado')}
   await saveData(); goBack();
 }
 
 // ── FORM RESERVA ──────────────────────────────────────────
 function openFormRes(edit){
-  rfItems={}; rfPago='pendiente';
+  rfItems={}; rfPrecios={}; rfPago='pendiente';
   if(edit&&editingRes){
     const r=reservas.find(x=>x.id===editingRes);
     document.getElementById('rf-title').textContent='Editar reserva';
@@ -855,8 +1019,10 @@ function openFormRes(edit){
     document.getElementById('rf-fecha-fin').value=(r.dateEnd&&r.dateEnd!==r.date)?r.dateEnd:'';
     document.getElementById('rf-hora').value=r.hora;
     document.getElementById('rf-notas').value=r.notas||'';
+    document.getElementById('rf-flete').value=r.flete||'';
+    document.getElementById('rf-senia-card').style.display='none';
     rfPago=r.pago||'pendiente';
-    r.items.forEach(it=>{rfItems[it.sid]=it.qty});
+    r.items.forEach(it=>{rfItems[it.sid]=it.qty;rfPrecios[it.sid]=itemPrice(it)});
   } else {
     document.getElementById('rf-title').textContent='Nueva reserva';
     document.getElementById('rf-cliente').value='';
@@ -864,6 +1030,9 @@ function openFormRes(edit){
     document.getElementById('rf-fecha-fin').value='';
     document.getElementById('rf-hora').value='18:00';
     document.getElementById('rf-notas').value='';
+    document.getElementById('rf-flete').value='';
+    document.getElementById('rf-senia').value='';
+    document.getElementById('rf-senia-card').style.display='';
     editingRes=null;
   }
   renderPagoOpts(); renderRfItems();
@@ -891,7 +1060,7 @@ function renderRfItems(){
     ?stock.map(s=>{const a=ba[s.id]||0,cur=rfItems[s.id]||0;
       return`<div class="item-picker">
         <span style="font-size:20px;flex-shrink:0">${s.emoji}</span>
-        <div class="ip-left"><div class="ip-name">${s.name}</div><div class="ip-avail">${a} disp.${s.precio?` · $${fmtNum(s.precio)}/ud`:''}</div></div>
+        <div class="ip-left"><div class="ip-name">${s.name}</div><div class="ip-avail">${a} disp.${rfPrecio(s.id)?` · $${fmtNum(rfPrecio(s.id))}/ud`:''}</div></div>
         <div class="qty-ctrl">
           <button class="qbtn" onclick="chgRf(${s.id},-1,${a})">−</button>
           <input type="number" class="qnum-input${cur>0?' active':''}" id="rfq-${s.id}" value="${cur}" min="0" max="${a}" inputmode="numeric" oninput="setRf(${s.id},this.value,${a})"/>
@@ -914,9 +1083,11 @@ function chgRf(sid,d,maxA){
   rfItems[sid]=v; el.value=v; el.className='qnum-input'+(v>0?' active':'');
   checkConflicts(); updateRfBudget();
 }
+// Al editar, cada material conserva el precio guardado en la reserva; los nuevos toman el de Stock
+function rfPrecio(sid){const s=byId(sid);return rfPrecios[sid]??(s&&s.precio||0)}
 function updateRfBudget(){
-  const total=Object.entries(rfItems).reduce((sum,[sid,qty])=>{
-    const s=byId(parseInt(sid)); return sum+(s&&s.precio?s.precio*qty:0);},0);
+  const total=Object.entries(rfItems).reduce((sum,[sid,qty])=>sum+rfPrecio(parseInt(sid))*qty,0)
+    +Math.max(0,parseInt(document.getElementById('rf-flete').value)||0);
   const prev=document.getElementById('rf-budget-preview');
   if(total>0){prev.style.display='flex';document.getElementById('rf-budget-total').textContent=fmtNum(total);}
   else prev.style.display='none';
@@ -935,14 +1106,26 @@ async function saveRes(){
   const[date,dateEnd]=rfDateRange();
   if(!client){toast('Escribí el nombre del cliente');return}
   if(!date){toast('Elegí una fecha');return}
-  const items=Object.entries(rfItems).filter(([,q])=>q>0).map(([sid,qty])=>({sid:parseInt(sid),qty:parseInt(qty)}));
+  const items=Object.entries(rfItems).filter(([,q])=>q>0).map(([sid,qty])=>({sid:parseInt(sid),qty:parseInt(qty),precio:rfPrecio(parseInt(sid))}));
   if(!items.length){toast('Agregá al menos un material');return}
   let ba=availOnRange(date,dateEnd);
   if(editingRes){const r=reservas.find(x=>x.id===editingRes);if(r)r.items.forEach(it=>{ba[it.sid]=(ba[it.sid]||0)+it.qty})}
   for(const{sid,qty}of items){if(qty>(ba[sid]||0)){const s=byId(sid);toast(`Stock insuficiente: ${s?s.name:'material'}`);return}}
   const hora=document.getElementById('rf-hora').value, notas=document.getElementById('rf-notas').value.trim();
-  if(editingRes){const r=reservas.find(x=>x.id===editingRes);r.client=client;r.date=date;r.dateEnd=dateEnd;r.hora=hora;r.notas=notas;r.items=items;r.pago=rfPago;toast('Reserva actualizada')}
-  else{reservas.push({id:nxtId++,client,date,dateEnd,hora,notas,items,pago:rfPago});toast('Reserva creada ✓')}
+  const flete=Math.max(0,parseInt(document.getElementById('rf-flete').value)||0);
+  let r;
+  if(editingRes){
+    r=reservas.find(x=>x.id===editingRes); const antes=r.pago||'pendiente';
+    Object.assign(r,{client,date,dateEnd,hora,notas,items,flete,pago:rfPago});
+    if(rfPago==='pagado'&&antes!=='pagado')cobrarTodo(r);
+    toast('Reserva actualizada');
+  } else {
+    const senia=Math.max(0,parseInt(document.getElementById('rf-senia').value)||0);
+    r={id:nxtId++,client,date,dateEnd,hora,notas,items,flete,pago:rfPago,pagos:senia?[{monto:senia,fecha:todayStr()}]:[]};
+    if(rfPago==='pagado')cobrarTodo(r);
+    reservas.push(r); toast('Reserva creada ✓');
+  }
+  syncPago(r);
   editingRes=null; await saveData(); goBack();
 }
 document.getElementById('rf-fecha').addEventListener('change',()=>{const fin=document.getElementById('rf-fecha-fin');if(fin.value&&fin.value<document.getElementById('rf-fecha').value)fin.value='';renderRfItems()});
@@ -955,8 +1138,8 @@ function renderFin(){
   const prefix=`${y}-${String(m+1).padStart(2,'0')}`;
   const monthRes=reservas.filter(r=>r.date&&r.date.startsWith(prefix));
   const totalPres=monthRes.reduce((s,r)=>s+calcResBudget(r),0);
-  const totalCob=monthRes.filter(r=>r.pago==='pagado').reduce((s,r)=>s+calcResBudget(r),0);
-  const totalPend=monthRes.filter(r=>r.pago!=='pagado').reduce((s,r)=>s+calcResBudget(r),0);
+  const totalCob=monthRes.reduce((s,r)=>s+calcPagado(r),0);
+  const totalPend=monthRes.reduce((s,r)=>s+calcSaldo(r),0);
   const mesGastos=gastos.filter(g=>g.fecha&&g.fecha.startsWith(prefix));
   const totalGastos=mesGastos.reduce((s,g)=>s+(g.monto||0),0);
   const balance=totalCob-totalGastos;
@@ -979,7 +1162,7 @@ function renderFin(){
       return`<div class="row">
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:500;color:var(--ink)">${r.client}</div>
-          <div style="font-size:11px;color:var(--stone);margin-top:1px">${fmtDate(r.date)}</div>
+          <div style="font-size:11px;color:var(--stone);margin-top:1px">${fmtDate(r.date)}${calcSaldo(r)>0&&calcPagado(r)>0?` · saldo $${fmtNum(calcSaldo(r))}`:''}</div>
         </div>
         ${pagoBadge(r.pago||'pendiente')}
         <span style="font-size:13px;font-weight:600;color:var(--ink);min-width:60px;text-align:right">$${fmtNum(budget)}</span>
@@ -1045,7 +1228,7 @@ async function sendMonthlyEmail(now){
   const prefix=`${y}-${String(m+1).padStart(2,'0')}`;
   const monthRes=reservas.filter(r=>r.date&&r.date.startsWith(prefix));
   const totalPres=monthRes.reduce((s,r)=>s+calcResBudget(r),0);
-  const totalCob=monthRes.filter(r=>r.pago==='pagado').reduce((s,r)=>s+calcResBudget(r),0);
+  const totalCob=monthRes.reduce((s,r)=>s+calcPagado(r),0);
   const mesGastos=gastos.filter(g=>g.fecha&&g.fecha.startsWith(prefix));
   const totalGastos=mesGastos.reduce((s,g)=>s+(g.monto||0),0);
   const detalle=monthRes.length

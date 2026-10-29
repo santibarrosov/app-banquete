@@ -1,5 +1,5 @@
 // Cambiar la versión en cada actualización: así los teléfonos detectan el cambio y se recargan solos
-const CACHE = 'elrincon-v3';
+const CACHE = 'elrincon-v4';
 const ASSETS = [
   './',
   './index.html',
