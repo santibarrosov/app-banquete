@@ -1,4 +1,5 @@
-const CACHE = 'elrincon-v2';
+// Cambiar la versión en cada actualización: así los teléfonos detectan el cambio y se recargan solos
+const CACHE = 'elrincon-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -11,29 +12,49 @@ const ASSETS = [
   'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js'
 ];
 
-// Instalar: cachear recursos estáticos
+// Instalar: cachear recursos estáticos (cache:'reload' evita guardar una copia vieja del caché HTTP)
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE)
+      .then(c => c.addAll(ASSETS.map(u => new Request(u, { cache: 'reload' }))))
+      .then(() => self.skipWaiting())
   );
 });
 
-// Activar: limpiar caches viejas
+// Activar: limpiar caches viejas y, si era una actualización, recargar las pantallas abiertas
 self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    ).then(() => self.clients.claim())
-  );
+  e.waitUntil((async () => {
+    const old = (await caches.keys()).filter(k => k !== CACHE);
+    await Promise.all(old.map(k => caches.delete(k)));
+    await self.clients.claim();
+    if (old.length) {
+      const wins = await self.clients.matchAll({ type: 'window' });
+      wins.forEach(w => w.navigate(w.url).catch(() => {}));
+    }
+  })());
 });
 
-// Fetch: network-first para Firebase (datos), cache-first para assets
+// Fetch: red primero para Firebase y para la app (index.html), caché primero para el resto
 self.addEventListener('fetch', e => {
   const url = e.request.url;
 
   // Firebase y EmailJS siempre desde la red (datos en tiempo real)
   if (url.includes('firebase') || url.includes('emailjs') || url.includes('gstatic')) {
     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+    return;
+  }
+
+  // La app: siempre la última versión si hay internet; la guardada si no hay
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request).then(res => {
+        if (res && res.status === 200) {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
+        return res;
+      }).catch(() => caches.match(e.request).then(r => r || caches.match('./index.html')))
+    );
     return;
   }
 

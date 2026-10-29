@@ -264,7 +264,10 @@ html,body{height:100%;background:#EDEDED;display:flex;align-items:center;justify
   <div class="screen" id="s-stock">
     <div class="topbar">
       <div><div class="topbar-eyebrow">Gestión</div><div class="topbar-title">Stock</div><div class="topbar-sub">Cantidades y precios</div></div>
-      <button onclick="openFormStock(false)" style="background:var(--gold);border:none;border-radius:12px;color:#fff;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:4px"><i class="ti ti-plus" style="font-size:15px"></i>Agregar</button>
+      <div style="display:flex;gap:6px">
+        <button onclick="shareStockPrices()" style="background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--ink);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;padding:7px 11px;cursor:pointer;display:flex;align-items:center;gap:4px"><i class="ti ti-share" style="font-size:15px"></i>Compartir</button>
+        <button onclick="openFormStock(false)" style="background:var(--gold);border:none;border-radius:12px;color:#fff;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:4px"><i class="ti ti-plus" style="font-size:15px"></i>Agregar</button>
+      </div>
     </div>
     <div class="scroll" style="padding:0 20px"><div id="stock-list"></div></div>
   </div>
@@ -595,6 +598,63 @@ function renderStock(){
       </div>
     </div>`}).join('')+'</div>';
   document.getElementById('stock-list').innerHTML=html;
+}
+
+// ── LISTA DE PRECIOS (imagen para compartir) ──────────────
+const priceLogo=new Image(); priceLogo.src='icon-512.png';
+if(document.fonts)['400','500','600'].forEach(w=>document.fonts.load(`${w} 32px Outfit`));
+
+function fitText(c,t,max){if(c.measureText(t).width<=max)return t;while(t.length>1&&c.measureText(t+'…').width>max)t=t.slice(0,-1);return t+'…'}
+function drawSpaced(c,t,cx,y,sp){
+  const ch=[...t],ws=ch.map(x=>c.measureText(x).width),tw=ws.reduce((a,b)=>a+b,0)+sp*(ch.length-1);
+  let x=cx-tw/2; c.textAlign='left'; ch.forEach((l,i)=>{c.fillText(l,x,y);x+=ws[i]+sp});
+}
+
+function buildPriceListCanvas(items){
+  const W=1080,PAD=90,ROW=80,TOP=580,BOTTOM=90,now=new Date();
+  const cv=document.createElement('canvas'); cv.width=W; cv.height=TOP+items.length*ROW+BOTTOM;
+  const c=cv.getContext('2d');
+  c.fillStyle='#FEFEFE'; c.fillRect(0,0,W,cv.height);
+  c.fillStyle='#1A1A1A'; c.textBaseline='middle';
+  // Logo: recorte del ícono de la app (mismo fondo blanco); si no cargó, solo texto
+  if(priceLogo.complete&&priceLogo.naturalWidth){
+    const sx=138,sy=152,sw=236,sh=192,k=1.6;
+    c.drawImage(priceLogo,sx,sy,sw,sh,(W-sw*k)/2,60,sw*k,sh*k);
+  } else {
+    c.font="500 64px Outfit, sans-serif"; drawSpaced(c,'EL RINCÓN',W/2,200,18);
+    c.font="400 24px Outfit, sans-serif"; drawSpaced(c,'ALQUILER DE BANQUETE',W/2,270,8);
+  }
+  c.font="600 40px Outfit, sans-serif"; drawSpaced(c,'LISTA DE PRECIOS',W/2,450,10);
+  c.fillStyle='#6B6B6B'; c.font="400 26px Outfit, sans-serif";
+  c.textAlign='center'; c.fillText(`Precios por unidad · ${MONTHS[now.getMonth()]} ${now.getFullYear()}`,W/2,502);
+  c.fillStyle='#1A1A1A'; c.fillRect(PAD,TOP-30,W-PAD*2,2);
+  items.forEach((s,i)=>{
+    const y=TOP+i*ROW+ROW/2, price=`$${fmtNum(s.precio)}`;
+    c.fillStyle='#1A1A1A';
+    c.font="600 34px Outfit, sans-serif"; c.textAlign='right'; c.fillText(price,W-PAD,y);
+    const pw=c.measureText(price).width;
+    c.font="400 34px Outfit, sans-serif"; c.textAlign='left'; c.fillText(fitText(c,s.name,W-PAD*2-pw-40),PAD,y);
+    if(i<items.length-1){c.fillStyle='#E5E5E5';c.fillRect(PAD,TOP+(i+1)*ROW,W-PAD*2,1)}
+  });
+  return cv;
+}
+
+// Conversión síncrona (sin toBlob) para no perder el gesto del usuario que exige navigator.share en iOS
+function canvasToPngBlob(cv){const b=atob(cv.toDataURL('image/png').split(',')[1]),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return new Blob([u],{type:'image/png'})}
+
+async function shareStockPrices(){
+  const items=[...stock].filter(s=>s.precio>0).sort((a,b)=>(a.orden??Infinity)-(b.orden??Infinity)||a.id-b.id);
+  if(!items.length){toast('No hay materiales con precio cargado');return}
+  const blob=canvasToPngBlob(buildPriceListCanvas(items));
+  const file=new File([blob],'lista-de-precios-el-rincon.png',{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    try{ await navigator.share({files:[file],title:'Lista de precios — El Rincón'}); return; }
+    catch(e){ if(e.name==='AbortError')return; }
+  }
+  // Sin soporte para compartir archivos (ej. PC): descargar la imagen
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=file.name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  toast('Imagen descargada');
 }
 
 // ── RESERVAS ──────────────────────────────────────────────
@@ -1012,6 +1072,10 @@ if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js')
       .then(r=>console.log('SW OK:',r.scope))
       .catch(e=>console.log('SW err:',e));
+  });
+  // Al volver a la app (quedó abierta en segundo plano), buscar una versión nueva; si hay, el SW recarga la pantalla
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible')navigator.serviceWorker.getRegistration().then(r=>r&&r.update()).catch(()=>{});
   });
 }
 </script>
